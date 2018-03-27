@@ -1,0 +1,14 @@
+[KJeff-Walkers-imac:HarrellPlot walker$ it[K[Kgit init
+Initialized empty Git repository in /Users/walker/Google Drive/Research/Projects/HarrellPlot project folder/HarrellPlot/.git/
+]0;~/Google Drive/Research/Projects/HarrellPlot project folder/HarrellPlotJeff-Walkers-imac:HarrellPlot walker$ git remote add origin git@github.com:middleprofessor/harrell-p lot.git
+]0;~/Google Drive/Research/Projects/HarrellPlot project folder/HarrellPlotJeff-Walkers-imac:HarrellPlot walker$ git pull origin master # in case you have LICENSE and Readme.m d files in the GitHub repo, they're downloaded to your machine
+
+remote: Counting objects: 4, done.[K
+remote: Compressing objects:  25% (1/4)   [Kremote: Compressing objects:  50% (2/4)   [Kremote: Compressing objects:  75% (3/4)   [Kremote: Compressing objects: 100% (4/4)   [Kremote: Compressing objects: 100% (4/4), done.[K
+remote: Total 4 (delta 0), reused 0 (delta 0), pack-reused 0[K
+Unpacking objects:  25% (1/4)   Unpacking objects:  50% (2/4)   Unpacking objects:  75% (3/4)   Unpacking objects: 100% (4/4)   Unpacking objects: 100% (4/4), done.
+From github.com:middleprofessor/harrell-plot
+ * branch            master     -> FETCH_HEAD
+ * [new branch]      master     -> origin/master
+]0;~/Google Drive/Research/Projects/HarrellPlot project folder/HarrellPlotJeff-Walkers-imac:HarrellPlot walker$ 
+]0;~/Google Drive/Research/Projects/HarrellPlot project folder/HarrellPlotJeff-Walkers-imac:HarrellPlot walker$ 

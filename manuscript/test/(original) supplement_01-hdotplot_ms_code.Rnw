@@ -1,0 +1,426 @@
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+%\geometry{landscape}                		% Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or epsÂ§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+
+%SetFonts
+
+%SetFonts
+
+
+\title{Supplement 1 to \textit{Combining data, distribution summary, effects, and uncertainty in a single plot -- the Tukey-Harrell-Cleveland Plot}
+\author{Jeffrey A. Walker}
+%\date{}							% Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+
+<<load libraries>>=
+library(readxl) # part of tidyverse
+library(ggplot2)
+library(gridExtra)
+library(grid)
+library(cowplot)
+library(broom)
+library(lme4)
+library(lmerTest)
+library(lsmeans)
+library(car)
+library(data.table)
+library(Hmisc) # smean.cl.boot
+library(MCMCpack) # bayes
+library(coda) # bayes
+
+#library(patchwork)
+@
+
+modification of Barker and Schofeild which was a modification of Hopkins and batringham
+<<biological significance>>=
+# set "biological significance to 0.5 but ultimately don't use numbered axes
+bs <- c(0.6, 0.8, 1) # biologically sig
+am1 <- c(0.4, 0.8, 1.2) # ambiguous 1
+am2 <- c(0.2, 0.4, 0.6) # ambiguous 2
+ts <- c(0.1, 0.2, 0.3) # trivially small
+dat <- rbind(ts, am2, am1, bs)
+colnames(dat) <- c('lower','Effect','upper')
+level_order <- c('trivial', 'ambiguous II', 'ambiguous I', 'consequential')
+dt <- data.table(Interpretation=factor(level_order, level_order),dat)
+gg <- ggplot(data=dt, aes(x=Interpretation, y=Effect)) +
+  geom_linerange(aes(min=lower, max=upper)) +
+  geom_point(color='white', size=4) +
+  geom_point(color='black', size=2) +
+  geom_hline(aes(yintercept=0.5), linetype='dashed') +
+  annotate("text", x = 4.5, y = .2, label = "Trivial") +
+  annotate("text", x = 4.5, y = 0.9, label = "Consequential") +
+  coord_flip(ylim=c(-.05, 1.25)) +
+  theme_minimal() +
+  theme(axis.title.y = element_blank())
+gg
+
+fn <- 'output/interpretation.pdf'
+pwidth <- 4
+pheight <- 3
+pdf(fn, width=pwidth, height=pheight, onefile = TRUE)
+grid.arrange(gg, nrow=1, ncol=1) 
+dev.off()
+
+@
+
+Initial plot comparing bar plot, mean and error plot, dot plot, and Hdotplot.
+
+<<fig 1>>=
+fn <- 'data/fly_burst.txt'
+fly <- fread(fn, stringsAsFactors = TRUE)
+
+# re-order so that Cn-F is the ref for the THCplot function
+setorder(fly, -Treatment, Sex)
+fly[, Treatment:=factor(Treatment, c('CN', 'AA'))]
+
+# bar plot
+gg.bar <- ggplot(data=fly, aes(x=Treatment, y=Vburst, group=Sex, fill=Sex)) +
+  stat_summary(fun.y=mean, geom='col', position = position_dodge(0.9), color='black') +
+  stat_summary(fun.data = 'mean_se', geom = c('errorbar'), width = 0.2, position = position_dodge(0.9)) +
+  theme_minimal() +
+  xlab('Selection Treatment') +
+  ylab('Burst speed (cm/s)') +
+  scale_fill_brewer(palette = 'Greys')
+gg.bar
+
+pd <- 0.4
+gg.me <- ggplot(data=fly, aes(x=Treatment, y=Vburst, group=Sex, shape=Sex)) +
+  stat_summary(fun.y=mean, geom="line", position = position_dodge(pd), color='darkGrey') +
+  stat_summary(fun.data = 'mean_se', geom = c('errorbar'), width = 0.2, position = position_dodge(pd)) +
+  stat_summary(fun.y=mean, geom='point', position = position_dodge(pd), color='white', size=4) +
+  stat_summary(fun.y=mean, geom='point', position = position_dodge(pd), color='black', size=3) +
+  theme_minimal() +
+  xlab('Selection Treatment') +
+  ylab('Burst speed (cm/s)') +
+  scale_fill_brewer(palette = 'Greys')
+gg.me
+
+res <- Hplot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = TRUE, contrasts.method = "revpairwise", interaction.group = TRUE, y_label = ('Burst speed (cm/s)') )
+gg.hdot <- res$gg 
+gg.hdot
+
+fn <- 'output/fig1a,b.pdf'
+pwidth <- 7
+pheight <- 3
+pdf(fn, width=pwidth, height=pheight, onefile = TRUE)
+grid.arrange(gg.bar, gg.me, nrow=1, ncol=2) 
+dev.off()
+
+fn <- 'output/fig1c.pdf'
+pwidth <- 7
+pheight <- 5
+pdf(fn, width=pwidth, height=pheight, onefile = TRUE)
+grid.arrange(gg.hdot, nrow=1, ncol=1) 
+dev.off()
+
+@
+
+Coefficients or effects
+
+<<zebra sprint>>=
+fish <- fread('data/zebra_sprint.txt', stringsAsFactors = TRUE)
+
+res.coef <- Hdotplot(x='Treatment', y='Sprint', g='Time', data=fish, rintcols = 'ID', rslopecols = 'Time', fit.model = 'lmm', add_interaction = TRUE, contrasts.method = "coefficients", interaction.group = TRUE)
+gg1 <- res.coef$gg + 
+  ylab('Sprint speed (cm/s)') +
+  theme(legend.position = 'none')
+gg1
+
+res.pair <- Hplot(x='Treatment', y='Sprint', g='Time', data=fish, rintcols = 'ID', rslopecols = 'Time', fit.model = 'lmm',
+add_interaction = TRUE, contrasts.method = "revpairwise", interaction.group = FALSE, short=TRUE)
+gg2 <- res.pair$gg + 
+  ylab('Sprint speed (cm/s)')
+gg2
+
+fn <- 'output/fig2a,b.pdf'
+pwidth <- 7
+pheight <- 9
+pdf(fn, width=pwidth, height=pheight, onefile = TRUE)
+#grid.arrange(gg1, gg2, nrow=2, ncol=1)
+#grid.draw(cbind(ggplotGrob(gg1), ggplotGrob(gg2), size="last"))
+plot_grid(gg1, gg2, labels = c("A", "B"), nrow = 2, align = "v")
+dev.off()
+
+@
+
+cast zebrafish sprint data to wide for ancova
+<<wide zebra>>=
+fish <- fread('data/zebra_sprint.txt', stringsAsFactors = TRUE)
+
+fit <- lmer(Sprint ~ Time + (Time|ID), data=fish)
+fish[, yhat:=predict(fit)]
+dtbar <- fish[, .(Sprint=mean(yhat)), by=.(Treatment, Time, ID)]
+dtbar_wide <- dcast(dtbar, Treatment+ID~Time, value.var = 'Sprint')
+
+fit <- lmer(Sprint ~ 1 + (Time|ID), data=fish)
+fish[, yhat2:=predict(fit)]
+dtbar2 <- fish[, .(Sprint=mean(yhat2)), by=.(Treatment, Time, ID)]
+dtbar_wide2 <- dcast(dtbar2, Treatment+ID~Time, value.var = 'Sprint')
+
+fish[ID=='sc07']
+write.table(dtbar_wide2, 'data/zebra_sprint_wide.txt', quote=FALSE, sep='\t', row.names = FALSE)
+
+@
+
+compare lmm vs. ancova for zebra sprint
+<<lmm v ancova>>=
+fish1 <- fread('data/zebra_sprint.txt', stringsAsFactors = TRUE)
+fish1[, Treatment:=factor(Treatment, c('Control','Sprint','Endurance'))]
+fish1[, Time:=factor(Time, c('pre','post'))]
+fit1 <- lmer(Sprint ~ Treatment*Time + (Time|ID), data=fish1)
+res1 <- coefficients(summary(fit1))
+
+fish1[, .(Sprint=mean(Sprint)), by=.(Treatment, Time)]
+
+fish2 <- fread('data/zebra_sprint_wide.txt', stringsAsFactors = TRUE)
+fish2[, Treatment:=factor(Treatment, c('Control','Sprint','Endurance'))]
+fit2 <- lm(post~pre + Treatment, data=fish2)
+res2 <- coefficients(summary(fit2))
+
+res1
+res2
+@
+
+Effects scaling fly
+
+<<fly burst>>=
+fn <- 'data/fly_burst.txt'
+fly <- fread(fn, stringsAsFactors = TRUE)
+
+# re-order so that Cn-F is the ref for the THCplot function
+setorder(fly, -Treatment, Sex)
+res <- Hdotplot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = FALSE, contrasts.method = "revpairwise", contrasts.scaling='percent', interaction.group = TRUE)
+gg1 <- res$gg + 
+  ylab('Burst speed (cm/s)')
+gg1
+
+res <- Hdotplot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = FALSE, contrasts.method = "revpairwise", contrasts.scaling='standardized', interaction.group = TRUE)
+gg2 <- res$gg + 
+  ylab('Burst speed (cm/s)')+
+  theme()
+gg2
+
+fn <- 'output/fig3a,b.pdf'
+pwidth <- 7
+pheight <- 9
+#pdf(fn, width=pwidth, height=pheight, onefile = TRUE)
+#grid.arrange(gg1, gg2, nrow=2, ncol=1)
+plot_grid(gg1, gg2, labels = c("A", "B"), nrow = 2, align = "v")
+dev.off()
+
+@
+
+Effects scaling fish
+
+<<fish scaling>>=
+fish <- fread('data/zebra_sprint.txt', stringsAsFactors = TRUE)
+
+res1 <- Hdotplot(x='Treatment', y='Sprint', g='Time', data=fish, rintcols = 'ID', rslopecols = 'Time', fit.model = 'lmm', add_interaction = TRUE, contrasts.method = "revpairwise", interaction.group = FALSE, short=TRUE, show.treatments=TRUE, contrasts.scaling='raw')
+gg1 <- res1$gg + 
+  ylab('Sprint speed (cm/s)') +
+  theme(legend.position = 'none')
+gg1
+
+res2 <- Hdotplot(x='Treatment', y='Sprint', g='Time', data=fish, rintcols = 'ID', rslopecols = 'Time', fit.model = 'lmm', add_interaction = TRUE, contrasts.method = "revpairwise", interaction.group = FALSE, short=TRUE, show.treatments=FALSE, contrasts.scaling='percent')
+gg2 <- res2$gg + 
+  ylab('Sprint speed (cm/s)')
+gg2
+
+res3 <- Hdotplot(x='Treatment', y='Sprint', g='Time', data=fish, rintcols = 'ID', rslopecols = 'Time', fit.model = 'lmm', add_interaction = TRUE, contrasts.method = "revpairwise", interaction.group = FALSE, short=TRUE, show.treatments=FALSE, contrasts.scaling='standardized')
+gg3 <- res3$gg + 
+  ylab('Sprint speed (cm/s)')
+gg3
+
+
+fn <- 'output/fig4a,b,c.pdf'
+pwidth <- 6
+pheight <- 9
+pdf(fn, width=pwidth, height=pheight, onefile = TRUE)
+plot_grid(gg1, gg2, gg3, labels = c("A", "B", "C"), nrow = 3, align = "v")
+dev.off()
+
+@
+
+``interaction plot'' vs. interaction graph
+
+<<interaction>>=
+fn <- 'data/fly_burst.txt'
+fly <- fread(fn, stringsAsFactors = TRUE)
+
+# re-order so that Cn-F is the ref for the THCplot function
+setorder(fly, -Treatment, Sex)
+fly[, Treatment:=factor(Treatment, c('CN', 'AA'))]
+
+pd <- 0.4
+gg1 <- ggplot(data=fly, aes(x=Treatment, y=Vburst, group=Sex, shape=Sex)) +
+  stat_summary(fun.y=mean, geom="line", position = position_dodge(pd), color='darkGrey') +
+  stat_summary(fun.data = 'mean_se', geom = c('errorbar'), width = 0.2, position = position_dodge(pd)) +
+  stat_summary(fun.y=mean, geom='point', position = position_dodge(pd), color='white', size=4) +
+  stat_summary(fun.y=mean, geom='point', position = position_dodge(pd), color='black', size=3) +
+  theme_minimal() +
+  xlab('Selection Treatment') +
+  ylab('Burst speed (cm/s)') +
+  scale_fill_brewer(palette = 'Greys')
+gg1
+
+res <- Hdotplot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = TRUE, contrasts.method = "coefficients")
+gg1 <- res$gg_contrasts
+gg2 <- res$gg_treatments + 
+  ylab('Burst speed (cm/s)')+
+  theme()
+gg <- plot_grid(gg1, gg2, nrow=2, align = "v")
+gg
+res$tables$coeffs
+
+coefficients(summary(lm(Vburst~Treatment*Sex, data=fly[Line==1])))
+coefficients(summary(lm(Vburst~Treatment*Sex, data=fly[Line==2])))
+
+@
+
+plethora of graphs
+
+<<show the model>>=
+# plot reflects model - model has no interaction so the plot shows main effects (pooled over other treatment)
+
+fn <- 'data/fly_burst.txt'
+fly <- fread(fn, stringsAsFactors = TRUE)
+
+# re-order so that Cn-F is the ref for the Hplot function
+setorder(fly, -Treatment, Sex)
+
+res <- Hdotplot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = FALSE, contrasts.method = "revpairwise", contrasts.scaling='raw', interaction.group = TRUE)
+gg1 <- res$gg_contrasts
+gg2 <- res$gg_treatments + 
+  ylab('Burst speed (cm/s)')+
+  theme()
+gg <- plot_grid(gg1, gg2, nrow=2, align = "v")
+gg
+fn <- 'output/fig.pooled.pdf'
+ggsave(fn, plot=gg, width=8, height=8, device = "pdf")
+@
+
+<<show what we want>>=
+
+# plot shows what we want to show - we only compare about the post vs. pre contrasts
+
+fish <- fread('data/zebra_sprint.txt', stringsAsFactors = TRUE)
+
+res4 <- Hdotplot(x='Treatment', y='Sprint', g='Time', data=fish, rintcols = 'ID', rslopecols = 'Time', fit.model = 'lmm', add_interaction = TRUE, contrasts.method = "revpairwise", interaction.group = FALSE, short=TRUE, show.treatments=TRUE, contrasts.scaling='raw')
+gg4 <- res4$gg + 
+  ylab('Sprint speed (cm/s)')
+gg4
+
+fn <- 'output/fig5a,b.pdf'
+pwidth <- 6
+pheight <- 8
+pdf(fn, width=pwidth, height=pheight, onefile = TRUE)
+plot_grid(gg2, gg4, labels = c("A", "B"), nrow = 2, align = "v")
+dev.off()
+
+@
+
+other
+1) p value vs. effect
+2) negative values not apparent in bar plot without data
+3) mean CI raw vs. model
+
+inferring "effect" vs. "no effect" based on P when effects are nearly the same. These data are honey bee metabolism. Simulated ata because the data are not available. Wang, Y., Campbell, J.B., Kaftanoglu, O., Page, R.E., Amdam, G.V., and Harrison, J.F. (2016). Larval starvation improves metabolic response to adult starvation in honey bees (Apis mellifera L.). Journal of Experimental Biology 219, 960–968.
+
+<<bee metabolism>>=
+
+# Fig 
+# 9.5 + 1.4/2
+# 11.7 + 1.9/2
+# 7.8 + 1.3/2
+# 5.9 + 0.7/2
+
+set.seed(1)
+#ybar <- c(9.5, 11.7, 7.8, 5.9) # early cn, early st, late cn, late st
+ybar <- c(9.65, 11.63, 7.8, 5.8) # early cn, early st, late cn, late st
+groups_1 <- c('control','starved')
+groups_2 <- c('short', 'long')
+#se <- c(1.4/2, 1.9/2, 1.3/2, .7/2) # early cn, early st, late cn, late st
+se <- c(1.35/2, 2/2, 1.2/2, .65/2) # early cn, early st, late cn, late st
+Ntot <- 183
+Ntreat <- Ntot/12/2 # per time per treatment
+N <- round(Ntreat*4) # pooled over 4 time intervals
+sd <- se*sqrt(N)
+tol_mu <- 0.01
+tol_sig <- 0.01
+yvec <- NULL
+for(i in 1:4){
+  done <- FALSE
+  while(done==FALSE){
+    y <- rnorm(N, mean=ybar[i], sd=sd[i])
+    if(abs(mean(y)-ybar[i]) < tol_mu &
+       abs(mean(y)-ybar[i]) < tol_mu
+    ){
+      yvec <- c(yvec,y)
+      done <- TRUE
+       }
+  }
+}
+dt <- data.table(Ad.starv=rep(groups_2, each=N*2),
+                 Juv.starv=rep(rep(groups_1, each=N),2),
+                 MR=yvec)
+
+#test
+dt[, .(mean=mean(MR), sd=sd(MR)), by=.(Juv.starv, Ad.starv)]
+res <- Hdotplot(x='Ad.starv', y='MR', g='Juv.starv', dt, add_interaction = TRUE, contrasts.method = "revpairwise", interaction.group = TRUE)
+gg.hdot <- res$gg 
+gg.hdot
+
+# target p is 0.06, <0.001, 0.05, 0.045
+res$tables$contrasts
+write.table(dt, 'data/bees.txt', sep='\t', row.names = FALSE, quote=FALSE)
+
+fn <- 'output/fig_bees.pdf'
+pwidth <- 6
+pheight <- 4
+pdf(fn, width=pwidth, height=pheight, onefile = TRUE)
+grid.arrange(gg.hdot, nrow=1, ncol=1) 
+dev.off()
+
+@
+
+<<urchin data>>=
+# resort to 400 is the ref value for the CO2 treatment
+
+@
+
+p vs. ci
+<<p v ci>>=
+niter <- 1000
+n <- 10
+d <- 2
+x <- rep(c(0,1), each=n)
+p <- numeric(niter)
+res <- data.frame(matrix(NA, nrow=niter, ncol=4))
+colnames(res) <- c('mean','lower','upper','p')
+i <- 0
+while(i < niter){
+  e <- rnorm(n*2)
+  y <- x*d + e
+  dt <- data.table(x=factor(x),y=y)
+  fit <- lm(y~x, dt)
+  p <- coefficients(summary(fit))['x1','Pr(>|t|)']
+  if(p >= 0.0001 & p <= 0.5){
+    i <- i+1
+    res[i,'mean'] <- coefficients(summary(fit))['x1','Estimate']
+    res[i,2:3] <- confint(fit)['x1',]
+    res[i,'p'] <- coefficients(summary(fit))['x1','Pr(>|t|)']
+  }
+}
+res
+qplot((res$p), abs(res$mean-d)) + geom_smooth()
+qplot(log(res$p), abs(res$mean-d)) + geom_smooth()
+@
+
+\end{document}  

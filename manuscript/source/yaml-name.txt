@@ -1,0 +1,11 @@
+  - name: Jeffrey A. Walker
+    affiliation:
+    - walker@maine.edu
+    - Department of Biological Sciences, University of Southern Maine, 70 Falmouth Street, Portland, ME 04103
+    
+  - name: Jeffrey A. Walker
+    affiliation: 1
+    corresponding: true
+    email: walker@maine.edu
+  - code: 1
+    address: Department of Biological Sciences, University of Southern Maine, 70 Falmouth Street, Portland, ME 04103

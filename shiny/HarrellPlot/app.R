@@ -1,0 +1,1188 @@
+# "Harrell" or "horizontal" dot plot - defaults to ploting treatment contrasts
+# in upper panel and treatment boxplots/dotplot in lower planel
+# Jeffrey A. Walker
+# November 24, 2017
+# note See https://github.com/thomasp85/patchwork/blob/master/README.md for alternative to Hdotplot
+# working07 - added anova, 
+# working08 - (1) made Hdotplot a modular function that can be used in R package without shiny. (2) changed dt from colnames=c(x, g, y) to actual variable names. (3) moved global variables tables, code to local, (4) added dashed line at y=0 to contrast part of plot
+# working09 - added ability to view contrasts within treatment and within group 
+# working10 - added contrasts as percent or standardized. *** known bug: percent doesn't work with group data if add_interaction==FALSE: fixed in working12b
+# working11 - custom gridlines to match tick labels in upper panel. This makes grids different in lower and upper panel.
+# working12 - add lmer
+# working13 - Major: switched to cowplot to join subplots. Minor: (1) impoved plot download to avoid plots$p1 global variable. (2) downloads subplots. (3) raw summaries improved (really raw). (4) fixed bug where single factor could cause error if previous plot with 2 factors.
+# working14 - added covariates, updated plotInput to a reactive so that model is only computed once, unless a parameter has changed
+# working15 - added tools for looking at individual effects (lines in dot plot and individual effects in contrasts plot)
+
+library(shiny)
+library(DT) # for tables
+library(gridExtra) # needed for download
+library(ggplot2)
+library(cowplot)
+library(broom)
+library(lme4)
+library(lmerTest)
+library(lsmeans)
+library(car)
+library(data.table)
+library(Hmisc) # smean.cl.boot
+library(MCMCpack) # bayes
+library(coda) # bayes
+
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+  
+  # sidebarLayout(
+  # App title ----
+  titlePanel("Harrell Plot"),
+  
+  # Sidebar panel for inputs ----
+  sidebarPanel(
+    conditionalPanel(condition = "input.tabs=='Data'",
+                     # Input file
+                     fileInput("FileInput", "Choose file")
+    ),
+    conditionalPanel(condition = "input.tabs=='Model'",
+                     # reactive Input for treatment
+                     uiOutput("response"),
+                     # reactive Input for grouping
+                     uiOutput("treatment"),
+                     # reactive Input for response
+                     uiOutput("group"),
+                     # reactive interaction checkbox
+                     uiOutput("interaction"),
+                     uiOutput("interaction.treatment"),
+                     uiOutput("interaction.group"),
+                     # reactive Input for covariates
+                     uiOutput("covariates"),
+                     # reactive Input for random
+                     uiOutput("random_intercept"),
+                     # reactive Input for random
+                     uiOutput("random_slope"),
+                     
+                     # model options
+                     selectInput("model", h5("Model"), choices=c('lm','lmm'), selected = 1),
+                     # response distribution
+                     #                     selectInput("error", "Error Distribution", choices=c('Normal'), selected = 1),
+                     
+                     
+                     # contrast options
+                     selectInput("contrasts.method", h3("Contrasts"), 
+                                 choices = list("Coefficients" = 1,"vs. Control" = 2, "Pairwise" = 3), selected = 2),
+                     selectInput("contrasts.scaling", h5("Contrast scaling"), 
+                                 choices = list("Raw" = 1,"as percent" = 2, "Standardized" = 3), selected = 1),
+                     selectInput("conf.contrast", h5("Confidence level"), 
+                                 choices = list("99%" = 1, "95%" = 2, "90%" = 3), selected = 2),
+                     checkboxInput("adjust", "Adjust for multiple tests", FALSE),
+                     
+                     # Treatment options
+                     selectInput("display.treatment", h3("Treatments"), 
+                                 choices = list("Box plot" = 1, "Confidence Interval" = 2), selected = 1),
+                     
+                     # Input: Confidence level
+                     selectInput("conf.mean", h5("Confidence level"), 
+                                 choices = list("99%" = 1, "95%" = 2, "90%" = 3), selected = 2),
+                     
+                     # Input: Confidence Interval Model
+                     # selectInput("mean_intervals.method", h5("Treatment CI model"), 
+                     #       choices = list("raw" = 1, "lm" = 2, "bootstrap" = 3, "Bayesian" = 4), selected = 1),
+                     selectInput("mean_intervals.method", h5("Treatment CI model"), 
+                                 choices = list("raw" = 1, "model" = 2, "bootstrap" = 3), selected = 1)
+                     
+                     
+    ),
+    
+    conditionalPanel(condition = "input.tabs=='Plot'",
+                     # Input: colors
+                     selectInput("relheight", h5("Relative height of Contrast subplot"), choices=list('auto'=1, '1:2'=2, '2:3'=3, '1:1'=4, '3:2'=5, '2:1'=6), selected=1),
+                     selectInput("colors", h5("Treatment Colors"), 
+                                 choices = list("ggplot" = 1, "Greys" = 2, "Blues" = 3,
+                                                "Accent"=4, "Dark2"=5, "Set1"=6, "Set2"=7,
+                                                "Set3"=8), selected = 2),
+                     # Input: theme
+                     selectInput("theme", h5("Plot Theme"), 
+                                 choices = list("gray" = 1, "bw" = 2, "classic" = 3, 
+                                                "minimal" = 4, "cowplot" = 5), selected = 4),
+                     checkboxInput("hide.contrasts", "Hide contrasts", FALSE),
+                     checkboxInput("hide.treatments", "Hide treatments", FALSE),
+                     # Input:include zero ----
+                     checkboxInput("zero", "Include zero", TRUE),
+                     # Input: flip axes ----
+                     checkboxInput("horizontal", "Horizontal bars", TRUE),
+                     
+                     # Input: abbreviate factor levels
+                     checkboxInput("short", "Abbreviate factor levels", FALSE),
+                     
+                     # Input: Checkbox for dots ----
+                     checkboxInput("dots", "Show dots", TRUE),
+                     # Input: Checkbox for Mean
+                     checkboxInput("mean", "Show Mean", TRUE)
+                     
+                     
+    ),
+    
+    conditionalPanel(condition = "input.tabs=='Table'",
+                     h3("Tables"),
+                     checkboxInput("notPretty", "Raw R tables", FALSE)
+                     
+    ),
+    
+    conditionalPanel(condition = "input.tabs=='Save'",
+                     h3("Download"),
+                     numericInput("width", "Width (inches)", 6, min = 2, max = 10, step = 0.25),
+                     numericInput("height", "Height (inches)", 7, min = 2, max = 10, step = 0.25)
+                     
+    )
+    
+  ),
+  
+  # Main panel for displaying outputs ----
+  mainPanel(
+    
+    tabsetPanel(type = "tabs",
+                tabPanel("Help",
+                         includeMarkdown("import_directions.Rmd")
+                ),
+                tabPanel("Data",
+                         DT::dataTableOutput("data_table")
+                         ),
+                tabPanel("Model",
+                         # Output: model
+                         textOutput("model_text"),
+                         # Output: CI level and adjustment for contrasts
+                         textOutput("interval_text"),
+                         
+                         # Output: Plot
+                         plotOutput("hDotPlot.model", width = "100%", height = "600px")
+                ),
+                tabPanel("Plot",
+                         # Output: Plot
+                         plotOutput("hDotPlot.plot", width = "100%", height = "600px")
+                ),
+                tabPanel("Table",
+                         textOutput("formulaCaption"),
+                         verbatimTextOutput("modelFormula"),
+                         textOutput("contrastsCaption"),
+                         verbatimTextOutput("modelContrasts"),
+                         textOutput("sumCaption"),
+                         verbatimTextOutput("modelSummary"),
+                         textOutput("coefCaption"),
+                         verbatimTextOutput("modelCoefficients"),
+                         textOutput("meansCaption"),
+                         verbatimTextOutput("modelMeans"),
+                         textOutput("anovaCaption"),
+                         verbatimTextOutput("modelAnova1"),
+                         verbatimTextOutput("modelAnova2"),
+                         verbatimTextOutput("modelAnova3")
+                ),
+                tabPanel("Save",
+                         
+                         # print the plot
+                         downloadButton(outputId = "downloadPlot", label = "Download PDF"),
+                         downloadButton(outputId = "download_gg_contrasts", label = "Download Contrasts Subplot (ggplot2 object)"),
+                         downloadButton(outputId = "download_gg_treatments", label = "Download Treatments Subplot (ggplot2 object)")
+                ),
+                id = 'tabs'
+    )
+    
+  )
+  #  )
+)
+
+server <- function(input, output) {
+
+  # read data file
+  dataInput <- reactive({
+    infile <- input$FileInput # opens file browser
+    if(is.null(infile))
+      return(NULL)
+    df <- fread(infile$datapath, stringsAsFactors = TRUE)
+    return(df)
+  })
+  
+  # populate Response input
+  output$response <- renderUI({
+    df <-dataInput()
+    if (is.null(df)) return(NULL)
+    items=c(' ', names(df))
+    #    names(items)=items
+    selectInput("response", "Response",items)
+  })
+  
+  # populate Treatment input
+  output$treatment <- renderUI({
+    df <-dataInput()
+    if (is.null(df)) return(NULL)
+    items=c(' ', names(df))
+    #    names(items)=items
+    selectInput("treatment", "Treatment 1",items)
+  })
+  
+  # populate Group input
+  output$group <- renderUI({
+    df <-dataInput()
+    if (is.null(df)) return(NULL)
+    items=c('None', names(df))
+    #    names(items)=items
+    selectInput("group", "Treatment 2", items, selected=1)
+  })
+  
+  output$interaction <- renderUI({
+    df <-dataInput()
+    if (is.null(df)) return(NULL)
+    if (input$group=='None') return(NULL)
+    checkboxInput("interaction", "Add interaction", FALSE)
+  })
+  
+  output$interaction.treatment <- renderUI({
+    df <-dataInput()
+    if (is.null(df)) return(NULL)
+    if (input$group=='None') return(NULL)
+    checkboxInput("interaction.treatment", "within Treatment 1", TRUE)
+  })
+  
+  output$interaction.group <- renderUI({
+    df <-dataInput()
+    if (is.null(df)) return(NULL)
+    if (input$group=='None') return(NULL)
+    checkboxInput("interaction.group", "within Treatment 2", FALSE)
+  })
+  
+  # populate random intercept input
+  output$covariates <- renderUI({
+    df <-dataInput()
+    if (is.null(df)) return(NULL)
+    items=names(df)
+    names(items)=items
+    selectInput("covariates", "Covariate(s)",items, multiple=TRUE)
+  })
+  
+  # populate random intercept input
+  output$random_intercept <- renderUI({
+    df <-dataInput()
+    if (is.null(df) | input$model != 'lmm') return(NULL)
+    items=names(df)
+    names(items)=items
+    selectInput("random_intercept", "Random intercept",items, multiple=TRUE)
+  })
+  
+  # populate random slope input
+  output$random_slope <- renderUI({
+    df <-dataInput()
+    if (is.null(df) | input$model != 'lmm') return(NULL)
+    items=names(df)
+    names(items)=items
+    selectInput("random_slope", "Random slope",items, multiple=TRUE)
+  })
+  
+  # render data_table
+  output$data_table = DT::renderDataTable(dataInput())
+
+  round_df <- function(df, digits){
+    df_names <- colnames(df)
+    df <- data.frame(lapply(df, function(y) if(is.numeric(y)) round(y, digits) else y)) 
+    colnames(df) <- df_names
+    return(df)
+  }
+  
+  form <- function(y, xcols){
+    form_str <- paste(y, ' ~ ', paste(xcols, collapse=' + '), sep='')
+    # if(input$interaction==TRUE & length(xcols)==2){
+    #   form_str <- paste(form_str, paste(xcols[1],':',xcols[2], sep=''), sep = ' + ')
+    # }
+    return(form_str)
+  }
+  
+  make_formula_str <- function(y, xcols=NULL, rintcols=NULL, rslopecols=NULL, icols=NULL, covcols=NULL){
+    # xcols = fixed
+    # rcols = random
+    # icols = interaction
+    
+    # fixed effects
+    form_str <- paste(y, ' ~ ', paste(c(covcols, xcols), collapse=' + '), sep='')
+    # fixed interaction effects
+    if(!is.null(icols)){
+      combos <- data.frame(t(combn(icols,2)))
+      i_str <- paste(paste(combos[,1],combos[,2],sep=':'), collapse=' + ')
+      form_str <- paste(form_str, i_str, sep=' + ')
+    }
+    # random intercepts and slopes
+    if(!is.null(rintcols)){
+      if(is.null(rslopecols)){slope_str <- '1'}else{slope_str <- rslopecols}
+      r_str <- paste(paste('(', slope_str, '|', rintcols, ')', sep=''), collapse=' + ')
+      form_str <- paste(form_str, r_str, sep=' + ')
+    }
+    return(form_str)
+  }
+  
+  
+  
+  contrast.groups <- function(contrast_matrix, grouping, add_interaction){
+    split1 <- data.frame(t(do.call("cbind", strsplit(as.character(contrast_matrix$contrast)," - "))))
+    if(grouping == TRUE & add_interaction==TRUE){
+      split2a <- data.frame(t(do.call("cbind", strsplit(as.character(split1$X1),","))))
+      colnames(split2a) <- c('X1','G1')
+      split2b <- data.frame(t(do.call("cbind", strsplit(as.character(split1$X2),","))))
+      colnames(split2b) <- c('X2','G2')
+      group_names <- data.table(split2a, split2b)
+    }else{
+      group_names <- data.table(split1)
+    }
+    return(group_names)
+  }
+  
+  fit_model <- function(
+    x,
+    y,
+    g,
+    covcols=NULL,
+    rintcols=NULL,
+    rslopecols=NULL,
+    dt,
+    fit.model='lm', # lm, glm
+    error='Normal', # normal, lognormal, logistic, poisson
+    add_interaction=FALSE,
+    interaction.group=FALSE,
+    interaction.treatment=TRUE,
+    mean_intervals.method='raw', # model for CI of mean
+    conf.mean=0.95, # confidence level for CI of mean
+    contrasts.method='trt.vs.ctrl1', # which contrasts to show
+    contrasts.scaling='raw', 
+    conf.contrast=0.95,
+    adjust=FALSE
+  ){
+    if(g=='dummy_g'){
+      xcols <- x
+      grouping <- FALSE
+    }else{
+      xcols <- c(x,g)
+      grouping <- TRUE
+    }
+    
+    if(add_interaction==TRUE){
+      icols <- c(x,g)
+    }else{
+      icols <- NULL
+    }
+    
+    model_formula <- formula(make_formula_str(y, xcols, rintcols, rslopecols, icols, covcols))
+    
+    if(fit.model=='lm'){
+      fit <- lm(model_formula, data=dt)
+    }
+    if(fit.model=='lmm'){
+      fit <- lmer(model_formula, data=dt)
+    }
+    lsm <- lsmeans(fit, specs=xcols)
+    
+    # save global
+    tables <- list(NULL)
+    tables$fit <- fit
+    tables$form_str <- model_formula
+    tables$coeffs <- coefficients(summary(fit))
+    tables$summary <- glance(fit)
+    tables$summary.raw <- summary(fit)
+    tables$means.raw <- lsm
+    # anova tables
+    if(fit.model=='lm'){
+      tables$anova.1 <- anova(fit)
+      tables$anova.2 <- Anova(fit, type='II')
+      options(contrasts=c(unordered="contr.sum", ordered="contr.poly"))
+      tables$anova.3 <- Anova(lm(model_formula, data=dt), type='III')
+      options(contrasts=c(unordered="contr.treatment", ordered="contr.poly"))
+    }
+    if(fit.model=='lmm'){
+      # tables$anova.3 <- Anova(lmer(model_formula, data=dt), type='III')
+      tables$anova.1 <- anova(lmer(model_formula, data=dt), type=1)
+      tables$anova.2 <- anova(lmer(model_formula, data=dt), type=2)
+      tables$anova.3 <- anova(lmer(model_formula, data=dt), type=3)
+    }
+    
+
+    #     Bayes model
+    #  mad <- median(abs(dt[,y] - mean(dt[,y])))
+    #  #dt[,y.mad:=y/mad]
+    #  y.mad <- dt[,y]/mad
+    #  fit.mcmc <- MCMCregress(y.mad ~ x, data=dt, b0 = 0, B0 = 0.1, c0=2, d0=0.11)
+    #  post.lsm <- lsmeans(fit.mcmc, specs='x')
+    # # dt <- dt[, .SD, .SDcols=c('x','y')] #drop y.mad because need to bind ci later
+    
+    # means intervals
+    if(mean_intervals.method=='lm'){
+      tables$means <- confint(lsm, level=conf.mean)
+      ci_means <- data.table(tables$means) # mean intervals not adjusted
+      ci_means <- ci_means[, .SD, .SDcols=c(xcols,'lsmean','lower.CL','upper.CL')]
+    }
+    if(mean_intervals.method=='raw'){
+      conf.tail <- conf.mean + (1-conf.mean)/2
+      tables$means <- dt[, .(
+        mean=mean(get(y)),
+        sem=sd(get(y))/sqrt(.N),
+        lower=mean(get(y))-sd(get(y))/sqrt(.N)*qt(conf.tail,(.N-1)),
+        upper=mean(get(y))+sd(get(y))/sqrt(.N)*qt(conf.tail,(.N-1))),
+        by=xcols]
+      ci_means <- tables$means[, .SD, .SDcols=c(xcols,'mean', 'lower','upper')]
+    }
+    if(mean_intervals.method=='boot'){
+      dt_boot <- data.table(dt[, smean.cl.boot(get(y),conf.int=conf.mean), by=xcols])
+      dt_boot[, tile:=c('a','lower','upper')]
+      form <- formula(paste(paste(xcols,collapse='+'),'tile',sep='~'))
+      ci_means <- dcast(dt_boot, form, value.var='V1') #**** change x+g to formula
+    }
+    # if(mean_intervals.method=='bayes'){
+    #   conf.tail <- conf.mean + (1-conf.mean)/2
+    #   res <- summary(as.mcmc(post.lsm), quantiles = c(0.5, (1-conf.tail), conf.tail))$quantiles*mad
+    #   ci_means <- data.table(x=row.names(res),res)
+    #   ci_means[, (x):=factor(substr(x,3,nchar(x)))]
+    # }
+    if(grouping==FALSE){
+      ci_means[, (g):='dummy']
+      setnames(ci_means, old=colnames(ci_means), new=c(x, y, 'lower', 'upper', g))
+      ci_means <- ci_means[,.SD, .SDcols=c(x, g, y,'lower','upper')]
+    }else{
+      setnames(ci_means, old=colnames(ci_means), new=c(xcols, y, 'lower','upper'))
+    }
+    
+    #     contrast intervals
+    x_levels <- levels(dt[, get(x)]) # levels for means plot
+    g_levels <- levels(dt[, get(g)])
+    n_levels <- length(x_levels)
+    n_groups <- length(g_levels)
+    
+    if(contrasts.method=='coefficients'){
+      ci_diffs <- coefficients(summary(fit))
+      
+      # get rid of df column from lmer fit
+      if(fit.model=='lmm'){
+        ci_diffs <- ci_diffs[,-which(colnames(ci_diffs)=='df')]
+      }
+      
+      x_names <- c(x_levels[-1], g_levels[-1])
+      if(add_interaction==TRUE){
+        temp <- expand.grid(x_levels[-1], g_levels[-1])
+        x_names <- c(x_names, paste(temp$Var1, temp$Var2, sep=':'))
+      }
+      # confint
+      ci_ci <- confint(fit, level=conf.contrast)[row.names(ci_diffs),]
+      ci_diffs <- cbind(ci_diffs, ci_ci)
+      tables$contrasts <- data.table(contrast=x_names, ci_diffs[-1,])
+      ci_diffs <- data.table(contrast=x_names, g='dummy', ci_diffs[-1,])
+      setnames(ci_diffs, old=colnames(ci_diffs), new = c('contrast', 'g', 'estimate', 'Std. Error', 't value', 'Pr(>|t|)', 'lower', 'upper'))
+      ci_diffs <- ci_diffs[, .SD, .SDcols=c('contrast','g','estimate','lower','upper')]
+      ci_diffs[, contrast:=factor(contrast, levels=x_names)]
+    }
+    if(contrasts.method!='coefficients'){
+      ci.adjust <- 'none'
+      if(adjust==TRUE){
+        ci.adjust <- ifelse(contrasts.method=='trt.vs.ctrl1', 'dunnettx','tukey')
+      }
+      if(grouping==FALSE | add_interaction==TRUE){
+        ci_diffs <- summary(contrast(lsm, method=contrasts.method), adjust=ci.adjust, level=conf.contrast, infer=c(TRUE,TRUE))
+        tables$contrasts.raw <- ci_diffs
+        if(grouping==TRUE & contrasts.method=='revpairwise'){ # subset into pairwise within each group
+          # another method
+          # fread(paste(as.character(ci_diffs$contras), collapse='\n'), sep='-')
+          inc <- NULL
+          split1 <- data.frame(t(do.call("cbind", strsplit(as.character(ci_diffs$contrast)," - "))))
+          split2a <- data.frame(t(do.call("cbind", strsplit(as.character(split1$X1),","))))
+          colnames(split2a) <- c('x1','g1')
+          split2b <- data.frame(t(do.call("cbind", strsplit(as.character(split1$X2),","))))
+          colnames(split2b) <- c('x2','g2')
+          splits <- data.table(split2a, split2b)
+          # splits[, x1:=as.character(x1)]
+          # splits[, x2:=as.character(x2)]
+          # splits[, g1:=as.character(g1)]
+          # splits[, g2:=as.character(g2)]
+          if(interaction.group==TRUE){
+            inc <- c(inc, which(splits[,g1]==splits[,g2]))
+          }
+          if(interaction.treatment==TRUE){
+            inc.x <- which(splits[,x1]==splits[,x2])
+            t.x <- factor(splits[inc.x, x1], levels(dt[, get(x)]))
+            inc <- c(inc, inc.x[order(t.x)])
+          }
+          ci_diffs <- ci_diffs[inc,]
+        }
+        tables$contrasts <- ci_diffs
+        ci_diffs <- data.table(ci_diffs, g='dummy')
+      }
+      if(grouping==TRUE & add_interaction==FALSE){
+        if(contrasts.method=='revpairwise'){
+          p_levels <- n_levels*(n_levels-1)/2
+          p_groups <- n_groups*(n_groups-1)/2
+        }else{
+          p_levels <- n_levels-1
+          p_groups <- n_groups-1
+        }
+        diffs.x <- summary(contrast(lsm, method=contrasts.method, by=g), adjust=ci.adjust, level=conf.contrast, infer=c(TRUE,TRUE))
+        ci_diffs.x <- data.table(diffs.x)[1:p_levels]
+        setnames(ci_diffs.x, old=c(g), new='by')
+        diffs.g <- summary(contrast(lsm, method=contrasts.method, by=x), adjust=ci.adjust, level=conf.contrast, infer=c(TRUE,TRUE))
+        ci_diffs.g <- data.table(diffs.g)[1:p_groups]
+        setnames(ci_diffs.g, old=c(x), new='by')
+        # save to tables
+        tables$contrasts.raw <- list(by_treatment=diffs.x, by_grouping=diffs.g)
+        # combine
+        ci_diffs <- data.table(NULL)
+        if(interaction.treatment==TRUE){ci_diffs <- rbind(ci_diffs, ci_diffs.x)}
+        if(interaction.group==TRUE){ci_diffs <- rbind(ci_diffs, ci_diffs.g)}
+        tables$contrasts <- copy(ci_diffs)
+        setnames(ci_diffs, old=c('by'), new='g')
+        # ci_diffs.x[, g:='x']
+        # ci_diffs.g[, g:='g']
+      }
+      ci_diffs <- ci_diffs[, .SD, .SDcols=c('contrast','g','estimate','lower.CL','upper.CL')]
+    }
+    if(fit.model=='bayes'){
+      conf.tail <- conf.contrast + (1-conf.contrast)/2
+      res <- summary(as.mcmc(contrast(post.lsm, method=contrasts.method)), quantiles = c(0.5, (1-conf.tail), conf.tail))$quantiles*mad
+      ci_diffs <- data.table(x=row.names(res),res)
+      ci_diffs[, x:=factor(substr(x,10,nchar(x)))]
+    }
+    
+    # make sure factor order of ci_diffs is in order they appear in the table
+    ci_diffs[, contrast:=factor(contrast, ci_diffs$contrast)]
+    
+    yscale <- 1 # default
+    if(contrasts.scaling=='standardized'){
+      yscale <- summary(fit)$sigma
+      ci_diffs[, estimate:=estimate/yscale]
+      ci_diffs[, lower.CL:=lower.CL/yscale]
+      ci_diffs[, upper.CL:=upper.CL/yscale]
+      
+      # scale tables$contrasts
+      tables$contrasts <- data.table(tables$contrasts)
+      tables$contrasts[, estimate:=estimate/yscale]
+      tables$contrasts[, SE:=SE/yscale]
+      tables$contrasts[, lower.CL:=lower.CL/yscale]
+      tables$contrasts[, upper.CL:=upper.CL/yscale]
+    }
+    if(contrasts.scaling=='percent'){
+      scale.o <- ci_diffs[1, estimate]
+      group_names <- contrast.groups(ci_diffs, grouping, add_interaction)
+      x1 <- group_names[, X2]
+      x2 <- ci_means[, get(x)]
+      if(grouping==TRUE & add_interaction==FALSE){
+        g1 <- group_names[, X1]
+        g2 <- group_names[, X2]
+        xmean <- ci_means[, .(mean=mean(get(y))), by=get(x)]
+        gmean <- ci_means[, .(mean=mean(get(y))), by=get(g)]
+        inc.g1.x <- na.omit(match(g1, xmean$get))
+        inc.g2.x <- na.omit(match(g2, xmean$get))
+        num.x <- xmean[inc.g1.x, mean]
+        denom.x <- xmean[inc.g2.x, mean]
+        inc.g1.g <- na.omit(match(g1, gmean$get))
+        inc.g2.g <- na.omit(match(g2, gmean$get))
+        num.g <- gmean[inc.g1.g, mean]
+        denom.g <- gmean[inc.g2.g, mean]
+        denom <- c(denom.x, denom.g)
+      }else{
+        if(grouping==TRUE & add_interaction==TRUE){
+          x1 <- paste(x1, group_names[, G2])
+          x2 <- paste(x2, ci_means[, get(g)])
+        }
+        inc <- match(x1, x2)
+        denom <- ci_means[inc, get(y)]
+      }
+      ci_diffs[, estimate:=100*estimate/denom]
+      ci_diffs[, lower.CL:=100*lower.CL/denom]
+      ci_diffs[, upper.CL:=100*upper.CL/denom]
+      
+      # # rescale back to scale.o
+      # yscale <- scale.o/ci_diffs[1, estimate]
+      # ci_diffs[, estimate:=estimate*yscale]
+      # ci_diffs[, lower.CL:=lower.CL*yscale]
+      # ci_diffs[, upper.CL:=upper.CL*yscale]
+      
+      # scale tables$contrasts
+      tables$contrasts <- data.table(tables$contrasts)
+      tables$contrasts[, estimate:=100*estimate/denom]
+      tables$contrasts[, SE:=100*SE/denom]
+      tables$contrasts[, lower.CL:=100*lower.CL/denom]
+      tables$contrasts[, upper.CL:=100*upper.CL/denom]
+      
+    }
+
+    setnames(ci_diffs, old=colnames(ci_diffs), new=c(x, g, y,'lower','upper'))
+    return(list(fit=fit, ci_means=ci_means, ci_diffs=ci_diffs, tables=tables, yscale=yscale))
+  }
+  
+  Hplot <- function(
+    # function for Harrell or Horizontal dot plot after Harrell's Hmisc
+    x,
+    y,
+    g='None',
+    covcols=NULL,
+    rintcols=NULL,
+    rslopecols=NULL,
+    data, # data frame or table
+    fit.model='lm', # lm, glm
+    error='Normal', # normal, lognormal, logistic, poisson
+    add_interaction=FALSE,
+    interaction.group=FALSE,
+    interaction.treatment=TRUE,
+    mean_intervals.method='raw', # model for CI of mean
+    conf.mean=0.95, # confidence level for CI of mean
+    contrasts.method='trt.vs.ctrl1', # which contrasts to show
+    contrasts.scaling='raw', 
+    conf.contrast=0.95,
+    adjust=FALSE,
+    show.contrasts=TRUE,
+    show.treatments=TRUE,
+    display.treatment='box',
+    short=FALSE,
+    show.mean=TRUE,
+    show.dots=TRUE,
+    zero=TRUE,
+    horizontal=TRUE,
+    color_palette='Greys',
+    jtheme='minimal',
+    rel_height=0, # relative height of contrast vs. treatment subplots
+    y_label=NULL # user supplied lable for Y axis
+  ){
+    # subset data
+    if(g == 'None'){
+      xcols <- x
+      grouping <- FALSE
+      add_interaction <- FALSE
+      interaction.group <- FALSE
+    }else{
+      xcols <- c(x,g)
+      grouping <- TRUE
+    }
+    data <- data.table(data)
+    dt <- data[, .SD, .SDcols=unique(c(xcols, y, rintcols, rslopecols, covcols))]
+    dt <- na.omit(dt) # has to be after groups read in
+    
+    # add empty grouping variable column if grouping == FALSE to make subsequent code easier
+    if(grouping == FALSE){
+      g <- 'dummy_g'
+      dt[, (g):='dummy']
+    }
+    
+    # abbreviate levels if TRUE
+    if(short==TRUE){
+      dt[, (x):=abbreviate(get(x))]
+      dt[, (g):=abbreviate(get(g))]
+    }
+    x_order <- dt[,.(i=min(.I)),by=get(x)][, get]
+    dt[, (x):=factor(get(x), x_order)]
+    g_order <- dt[,.(i=min(.I)),by=get(g)][, get]
+    dt[, (g):=factor(get(g), g_order)]
+    
+    res <- fit_model(x, y, g, covcols, rintcols, rslopecols, dt, fit.model, error, add_interaction, interaction.group, interaction.treatment, mean_intervals.method, conf.mean, contrasts.method, contrasts.scaling, conf.contrast, adjust)
+    
+    ci_means <- res$ci_means
+    ci_diffs <- res$ci_diffs
+    tables <- res$tables
+
+    # temp for debug
+    # tables$contrasts <- ci_diffs
+    
+    # plot it
+    base.size <- 18
+    
+    gg_contrasts <- NULL
+    gg_treatments <- NULL
+    if(show.contrasts == TRUE){
+      gg_contrasts <- ggplot(data=ci_diffs, aes_string(x=x, y=y)) +
+        
+        # draw line at y=0 first
+        
+        # draw effects + CI
+        geom_linerange(aes(ymin = lower, ymax = upper), color='black', size=2) +
+        geom_point(size=3, color='white') +
+        geom_point(size=2, color='black')
+      
+      # re-label Y
+      if(contrasts.scaling=='raw'){contrast_axis_name <- 'Effect'}
+      if(contrasts.scaling=='percent'){contrast_axis_name <- 'Percent Effect'}
+      if(contrasts.scaling=='standardized'){contrast_axis_name <- 'Standardized Effect'}
+      gg_contrasts <- gg_contrasts + ylab(contrast_axis_name)
+      
+      # re-label X
+      contrast_txt <- ifelse(contrasts.method=='coefficients', 'Coefficient', 'Contrast')
+      gg_contrasts <- gg_contrasts + xlab(contrast_txt)
+      
+      # set theme and gridlines first as background
+      if(jtheme=='grey'){
+        gg_contrasts <- gg_contrasts + theme_grey(base_size = base.size)
+      }
+      if(jtheme=='gray'){
+        gg_contrasts <- gg_contrasts + theme_gray(base_size = base.size)
+      }
+      if(jtheme=='bw'){
+        gg_contrasts <- gg_contrasts + theme_bw(base_size = base.size)
+      }
+      if(jtheme=='classic'){
+        gg_contrasts <- gg_contrasts + theme_classic(base_size = base.size)
+      }
+      if(jtheme=='minimal'){
+        gg_contrasts <- gg_contrasts + theme_minimal(base_size = base.size)
+      }
+      if(jtheme=='cowplot'){
+        gg_contrasts <- gg_contrasts + theme_cowplot(font_size = base.size)
+      }
+      
+      # include zero in axis?
+      y_range <- range(pretty(c(ci_diffs[, lower], ci_diffs[, upper])))
+      ylims <- y_range
+      if(min(y_range) > 0){
+        ylims <-c(0, max(y_range))
+      }
+      if(max(y_range) < 0){
+        ylims <- c(min(y_range), 0)
+      }
+      
+      if(horizontal==TRUE){
+        gg_contrasts <- gg_contrasts +
+          scale_y_continuous(position = "right") +
+          theme(plot.margin = margin(0, 0, 0, 0, "cm"))
+        if(zero==TRUE){
+          gg_contrasts <- gg_contrasts + coord_flip(ylim=ylims)
+        }else{
+          gg_contrasts <- gg_contrasts + coord_flip()
+        }
+        
+      }
+      
+    }    
+    
+    if(show.treatments == TRUE){
+      gg_treatments <- ggplot(data=dt, aes_string(x=x, y=y))
+      dodge_width <- 0.75
+      
+      # show box plot
+      if(display.treatment=='box'){ # plot before dots
+        if(show.dots==TRUE){outlier_color <- NA}else{outlier_color <- NULL}
+        gg_treatments <- gg_treatments + geom_boxplot(data=dt, aes_string(fill=g), outlier.colour = outlier_color)
+      }
+      
+      if(display.treatment=='ci'){
+        gg_treatments <- gg_treatments + geom_linerange(data=ci_means, aes_string(ymin = 'lower', ymax = 'upper', group=g), size=2, position=position_dodge(dodge_width))
+        gg_treatments <- gg_treatments + geom_point(data=ci_means, aes_string(x=x, y=y, shape=g), size=5, color='white', position=position_dodge(dodge_width))
+        gg_treatments <- gg_treatments + geom_point(data=ci_means, aes_string(x=x, y=y, shape=g), size=3, color='black', position=position_dodge(dodge_width))
+        gg_treatments
+      }
+      
+      # show dots
+      if(show.dots==TRUE){
+        #gg_treatments <- gg_treatments + geom_jitter(aes_string(group=g), width=0.1, height = 0.0, size=1, alpha=0.5)
+        if(is.null(rintcols)){
+          gg_treatments <- gg_treatments + geom_point(aes_string(fill=g), size=1, alpha=0.5, position=position_jitterdodge())
+        }else{
+          gg_treatments <- gg_treatments + geom_point(aes_string(fill=g), size=1, alpha=0.5, position=position_jitterdodge())
+          # gg_treatments <- ggplot(data=dt, aes_string(x=x, y=y))
+          # gg_treatments <- gg_treatments + geom_boxplot(data=dt, aes_string(fill=g), outlier.colour = outlier_color)
+          # gg_treatments <- gg_treatments + geom_line(aes(group=Time, color=ID), position=position_dodge(dodge_width))
+          # gg_treatments
+        }
+      }
+      
+      # show mean
+      if(show.mean==TRUE & display.treatment=='box'){
+        dot_color <- ifelse(color_palette=='Greys','black','black')
+        gg_treatments <- gg_treatments + geom_point(data=ci_means, aes_string(x=x, y=y, group=g), size=3, color='white', position=position_dodge(width=dodge_width))
+        gg_treatments <- gg_treatments + geom_point(data=ci_means, aes_string(x=x, y=y, group=g), size=2, color=dot_color, position=position_dodge(width=dodge_width))
+      }
+      
+      # set colors
+      if(color_palette != 'ggplot'){
+        gg_treatments <- gg_treatments + scale_color_brewer(palette = color_palette)
+        gg_treatments <- gg_treatments + scale_fill_brewer(palette = color_palette)
+      }
+      
+      # set theme and gridlines first as background
+      if(jtheme=='grey'){
+        gg_treatments <- gg_treatments + theme_grey(base_size = base.size)
+      }
+      if(jtheme=='gray'){
+        gg_treatments <- gg_treatments + theme_gray(base_size = base.size)
+      }
+      if(jtheme=='bw'){
+        gg_treatments <- gg_treatments + theme_bw(base_size = base.size)
+      }
+      if(jtheme=='classic'){
+        gg_treatments <- gg_treatments + theme_classic(base_size = base.size)
+      }
+      if(jtheme=='minimal'){
+        gg_treatments <- gg_treatments + theme_minimal(base_size = base.size)
+      }
+      if(jtheme=='cowplot'){
+        gg_treatments <- gg_treatments + theme_cowplot(font_size = base.size)
+      }
+      
+      legend_postion <- ifelse(grouping==TRUE,'bottom','none')
+      gg_treatments <- gg_treatments +
+        theme(plot.margin = margin(0, 0, 0, 0, "cm"), legend.position = legend_postion)
+      
+      if(horizontal==TRUE){
+        gg_treatments <- gg_treatments +
+          coord_flip()
+      }
+      
+      if(!is.null(y_label)){
+        gg_treatments <- gg_treatments + ylab(y_label)
+      }
+    }
+    
+    if(rel_height==0){
+      ar <- nrow(ci_diffs)/nrow(ci_means)
+    }else{
+      ar <- rel_height
+    }
+    if(show.contrasts==TRUE & show.treatments==TRUE){
+      gg <- plot_grid(gg_contrasts, gg_treatments, nrow=2, align = "v", rel_heights = c(1*ar, 1))
+    }
+    if(show.contrasts==TRUE & show.treatments==FALSE){
+      gg <- gg_contrasts
+    }
+    if(show.contrasts==FALSE & show.treatments==TRUE){
+      gg <- gg_treatments
+    }
+    
+    return(list(gg=gg, gg_contrasts=gg_contrasts, gg_treatments=gg_treatments, tables=tables))
+  }
+  
+  plotInput.function <- function(df){
+    # dummy placeholder to find my plotInput reactive function
+  }
+  
+  plotInput <- reactive({
+    df <- dataInput()
+    
+    # model
+    fit.model <- input$model
+    #    error <- input$error
+    error <- 'Normal'
+    x <- input$treatment
+    y <- input$response
+    g <- input$group
+    covcols <- input$covariates
+    
+    rintcols <- input$random_intercept
+    rslopecols <- input$random_slope
+    # make sure that random effects are Null if model is lm
+    if(fit.model=='lm'){
+      rintcols <- NULL
+      rslopcols <- NULL
+    }
+    
+    #set inputs to non-shiny variables
+    # confidence limits for contrasts and means
+    conf <- c(0.99, 0.95, 0.9)
+    conf.contrast <- conf[as.numeric(as.character(input$conf.contrast))]
+    conf.mean <- conf[as.numeric(as.character(input$conf.mean))]
+    
+    # contrasts
+    # method for computation of treatment CI
+    # control or pairwise contrasts
+    contrast_array <- c('coefficients','trt.vs.ctrl1', 'revpairwise') # c("Control", "Pairwise") in menu 
+    contrasts.method <- contrast_array[as.numeric(as.character(input$contrasts.method))]
+    contrast_scaling_array <- c('raw','percent', 'standardized')
+    contrasts.scaling <- contrast_scaling_array[as.numeric(as.character(input$contrasts.scaling))]
+    # adjust for multiple tests
+    adjust <- ifelse(input$adjust==TRUE, TRUE, FALSE)
+    # interaction?
+    if(is.null(input$interaction)){
+      add_interaction <- FALSE
+    }else{
+      add_interaction <- ifelse(input$interaction==TRUE, TRUE, FALSE)
+    }
+    interaction.group <- input$interaction.group
+    interaction.treatment <- input$interaction.treatment
+    
+    # treatments
+    input_array <- c('box','ci')
+    display.treatment <- input_array[as.numeric(as.character(input$display.treatment))]
+    # method for computation of treatment CI
+    interval_array <- c('raw','lm','boot','bayes')
+    mean_intervals.method <- interval_array[as.numeric(as.character(input$mean_intervals.method))]
+    #    mean_intervals.method <- input$mean_intervals.method
+    
+    # plot
+    color_array <- c("ggplot", "Greys", "Blues", "Accent", "Dark2", "Set1", "Set2", "Set3")
+    color_palette <- color_array[as.numeric(as.character(input$colors))]
+    theme_array <- c("gray", "bw", "classic", "minimal", "cowplot")
+    jtheme <- theme_array[as.numeric(as.character(input$theme))]
+    show.treatments <- ifelse(input$hide.treatments==FALSE, TRUE, FALSE)
+    show.contrasts <- ifelse(input$hide.contrasts==FALSE, TRUE, FALSE)
+    show.mean <- ifelse(input$mean==TRUE, TRUE, FALSE)
+    show.dots <- ifelse(input$dots==TRUE, TRUE, FALSE)
+    horizontal <- ifelse(input$horizontal==TRUE, TRUE, FALSE)
+    zero <- ifelse(input$zero==TRUE, TRUE, FALSE)
+    
+    if(input$short==FALSE){short <- FALSE}else{short <- TRUE}
+    
+    rel_height_array <- c(0, 1/2, 2/3, 1, 3/2, 2)
+    rel_height <- rel_height_array[as.numeric(as.character(input$relheight))]
+    #    rel_height_ch_array <- c('auto', '1:2', '2:3', '1:1', '3:2', '2:1')
+    # rel_height_input <- input$relheight
+    # rel_height <- rel_height_array[which(rel_height_ch_array==rel_height_input)]
+    
+    res <- Hplot(x, y, g, covcols, rintcols, rslopecols, df, fit.model, error, add_interaction, interaction.group, interaction.treatment, mean_intervals.method, conf.mean, contrasts.method, contrasts.scaling, conf.contrast, adjust, show.contrasts, show.treatments, display.treatment, short, show.mean, show.dots, zero, horizontal, color_palette, jtheme, rel_height)
+    
+    res
+  })
+  
+  
+  # output model text
+  output$model_text <- renderText({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    
+    # model
+    fit.model <- input$model
+    x <- input$treatment
+    if(is.null(x)){x=''}
+    y <- input$response
+    if(is.null(y)){y=''}
+    g <- input$group
+    if(g=='None'){
+      xcols <- x
+    }else{
+      xcols <- c(x, g)
+    }
+    covcols <- input$covariates
+    rintcols <- input$random_intercept
+    rslopecols <- input$random_slope
+    # # make sure that random effects are Null if model is lm
+    if(fit.model=='lm'){
+      rintcols <- NULL
+      rslopcols <- NULL
+    }
+    if(is.null(input$interaction)){
+      add_interaction <- FALSE
+    }else{
+      add_interaction <- ifelse(input$interaction==TRUE, TRUE, FALSE)
+    }
+    if(add_interaction==TRUE){
+      icols <- c(x,g)
+    }else{
+      icols <- NULL
+    }
+    model_formula <- make_formula_str(y, xcols, rintcols, rslopecols, icols, covcols)
+    
+    model_formula
+  })
+  
+  # output contrast interval method
+  output$interval_text <- renderText({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    
+    # contrast method
+    if(input$model=='bayes'){ #bootstrap or bayes
+      adjust_text <- 'no'
+    }else{
+      if(input$adjust==FALSE){adjust_text <- 'none'}else{
+        adjust_text <- ifelse(input$contrasts.method==2, 'Dunnet t approximation','Tukey HSD')
+      }
+    }
+    conf <- c(0.99, 0.95, 0.9)
+    conf.contrast <- as.integer(conf[as.numeric(as.character(input$conf.contrast))]*100)
+    out_text <- paste('contrasts with ',conf.contrast,'% CI using adjustment: ',adjust_text, sep='')
+    
+    out_text
+  })
+  
+  output$formulaCaption <- renderText({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    "The Model"
+  })
+  
+  output$modelFormula <- renderPrint({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    tables <- plotInput()$tables
+    print(tables$form_str, showEnv=FALSE)
+  })
+  
+  output$contrastsCaption <- renderText({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    contrast_axis_name <- 'Model Contrasts'
+    if(input$contrasts.scaling==2){contrast_axis_name <- 'Model Contrasts (percent)'}
+    if(input$contrasts.scaling==3){contrast_axis_name <- 'Model Contrasts (standardized)'}
+    contrast_axis_name
+  })
+  
+  output$modelContrasts <- renderPrint({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    tables <- plotInput()$tables
+    
+    if(input$notPretty == TRUE){
+      # print(tables$contrasts)
+      print(tables$contrasts.raw)
+    }else{ # pretty
+      print(round_df(tables$contrasts, 3), row.names=FALSE)
+    }
+  })
+  
+  output$coefCaption <- renderText({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    "Model Coefficients"
+  })
+  
+  output$modelCoefficients <- renderPrint({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    tables <- plotInput()$tables
+    if(input$notPretty == TRUE){
+      print(tables$coeffs)
+    }else{ # pretty
+      coef_dt <- data.table(Coeffcient=row.names(tables$coeffs), tables$coeffs)
+      print(round_df(coef_dt, 3), row.names=FALSE)
+    }
+  })
+  
+  output$sumCaption <- renderText({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    "Model Summary"
+  })
+  
+  output$modelSummary <- renderPrint({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    tables <- plotInput()$tables
+    if(input$notPretty == TRUE){
+      print(tables$summary.raw, row.names=FALSE)
+    }else{ # pretty
+      print(round_df(tables$summary, 3), row.names=FALSE)
+    }
+  })
+  
+  output$meansCaption <- renderText({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    "Model Means"
+  })
+  
+  output$modelMeans <- renderPrint({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    tables <- plotInput()$tables
+    if(input$notPretty == TRUE){
+      print(tables$means.raw)
+    }else{ # pretty
+      print(round_df(tables$means, 3), row.names=FALSE)
+    }
+  })
+  
+  output$anovaCaption <- renderText({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    "Model ANOVA (type I, II, III)"
+  })
+  
+  output$modelAnova1 <- renderPrint({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    tables <- plotInput()$tables
+    tables$anova.1
+  })
+  
+  output$modelAnova2 <- renderPrint({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    tables <- plotInput()$tables
+    tables$anova.2
+  })
+  
+  output$modelAnova3 <- renderPrint({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    tables <- plotInput()$tables
+    tables$anova.3
+  })
+  
+  output$modelCode <- renderPrint({
+    df <- dataInput()
+    if (is.null(df)) return(NULL)
+    codes <- plotInput()$codes
+    str1 <- 'library(ggplot2)'
+    str2 <- 'library(lsmeans)'
+    str3 <- 'library(broom)'
+    str4 <- 'library(data.table)'
+    h <- paste(str1, str2, str3, str4, sep = '<br/>')
+    h <- c(h, '<br/>', paste(codes$data, collapse='<br/>'))
+    h <- c(h, '<br/>', paste(codes$fit, collapse='<br/>'))
+    HTML(h)
+  })
+  
+  # download
+  # output$downloadPlot <- downloadHandler(
+  #   filename = 'temp.png',
+  #   content = function(file) {
+  #     device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
+  #     ggsave(file, plot = plotInput(), device = device)
+  #   }
+  # )
+  
+  # plot to the model panel
+  output$hDotPlot.model <- renderPlot({
+    df <-dataInput()
+    if (is.null(df)) return(NULL)
+    if(input$treatment != ' ' & 
+       is.numeric(df[[input$response]])){
+
+      print(plotInput()$gg)
+    }
+  })  
+  
+  # plot to the plot panel
+  output$hDotPlot.plot <- renderPlot({
+    df <-dataInput()
+    if (is.null(df)) return(NULL)
+    if(input$treatment != ' ' & 
+       is.numeric(df[[input$response]])){
+      print(plotInput()$gg)
+    }
+  })  
+  
+  output$downloadPlot = downloadHandler(
+    filename = function() {"Hplot.pdf"},
+    
+    content = function(filename) {
+      df <-dataInput()
+      if (is.null(df)) return(NULL)
+      ggsave(filename, plot = plotInput()$gg, width=input$width, height=input$height, device = "pdf")
+    }
+    
+  )
+  
+  
+  output$download_gg_contrasts <- downloadHandler(
+    filename = function() {
+      'contrasts.RDS'
+    },
+    content = function(con) {
+      df <-dataInput()
+      if (is.null(df)) return(NULL)
+      res <- plotInput()
+      saveRDS(res$gg_contrasts, con)
+    }
+  )
+  
+  output$download_gg_treatments <- downloadHandler(
+    filename = function() {
+      'treatments.RDS'
+    },
+    content = function(con) {
+      df <-dataInput()
+      if (is.null(df)) return(NULL)
+      res <- plotInput()
+      saveRDS(res$gg_treatments, con)
+    }
+  )
+  
+}
+
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+
