@@ -11,4 +11,176 @@ From github.com:middleprofessor/harrell-plot
  * branch            master     -> FETCH_HEAD
  * [new branch]      master     -> origin/master
 ]0;~/Google Drive/Research/Projects/HarrellPlot project folder/HarrellPlotJeff-Walkers-imac:HarrellPlot walker$ 
-]0;~/Google Drive/Research/Projects/HarrellPlot project folder/HarrellPlotJeff-Walkers-imac:HarrellPlot walker$ 
+]0;~/Google Drive/Research/Projects/HarrellPlot project folder/HarrellPlotJeff-Walkers-imac:HarrellPlot walker$ git add . # indexes all files that wil be added to the local r epo
+]0;~/Google Drive/Research/Projects/HarrellPlot project folder/HarrellPlotJeff-Walkers-imac:HarrellPlot walker$ git commit -m "init commit" # adds all files to the local repo , with a commit message
+[master 462fa49] init commit
+ 159 files changed, 30561 insertions(+)
+ create mode 100644 .DS_Store
+ create mode 100644 .Rhistory
+ create mode 100644 .Rproj.user/2F0424C2/console06/INDEX001
+ create mode 100644 .Rproj.user/2F0424C2/pcs/files-pane.pper
+ create mode 100644 .Rproj.user/2F0424C2/pcs/source-pane.pper
+ create mode 100644 .Rproj.user/2F0424C2/pcs/windowlayoutstate.pper
+ create mode 100644 .Rproj.user/2F0424C2/pcs/workbench-pane.pper
+ create mode 100644 .Rproj.user/2F0424C2/rmd-outputs
+ create mode 100644 .Rproj.user/2F0424C2/saved_source_markers
+ create mode 100644 .Rproj.user/2F0424C2/sources/per/t/A5B3B84E
+ create mode 100644 .Rproj.user/2F0424C2/sources/per/t/A5B3B84E-contents
+ create mode 100644 .Rproj.user/2F0424C2/sources/prop/5B65A142
+ create mode 100644 .Rproj.user/2F0424C2/sources/prop/INDEX
+ create mode 100644 .Rproj.user/3844950F/console06/45937766
+ create mode 100644 .Rproj.user/3844950F/console06/45937766.env
+ create mode 100644 .Rproj.user/3844950F/console06/INDEX001
+ create mode 100644 .Rproj.user/3844950F/pcs/debug-breakpoints.pper
+ create mode 100644 .Rproj.user/3844950F/pcs/files-pane.pper
+ create mode 100644 .Rproj.user/3844950F/pcs/packages-pane.pper
+ create mode 100644 .Rproj.user/3844950F/pcs/source-pane.pper
+ create mode 100644 .Rproj.user/3844950F/pcs/windowlayoutstate.pper
+ create mode 100644 .Rproj.user/3844950F/pcs/workbench-pane.pper
+ create mode 100644 .Rproj.user/3844950F/rmd-outputs
+ create mode 100644 .Rproj.user/3844950F/saved_source_markers
+ create mode 100644 .Rproj.user/3844950F/sources/prop/20F86ED7
+ create mode 100644 .Rproj.user/3844950F/sources/prop/270C65D6
+ create mode 100644 .Rproj.user/3844950F/sources/prop/38543125
+ create mode 100644 .Rproj.user/3844950F/sources/prop/3E7D6D33
+ create mode 100644 .Rproj.user/3844950F/sources/prop/4770FD23
+ create mode 100644 .Rproj.user/3844950F/sources/prop/4C70E9B9
+ create mode 100644 .Rproj.user/3844950F/sources/prop/512F8BAC
+ create mode 100644 .Rproj.user/3844950F/sources/prop/54C679DD
+ create mode 100644 .Rproj.user/3844950F/sources/prop/5D6E9BCA
+ create mode 100644 .Rproj.user/3844950F/sources/prop/916CA0FB
+ create mode 100644 .Rproj.user/3844950F/sources/prop/A1A83DF9
+ create mode 100644 .Rproj.user/3844950F/sources/prop/BFBD05F3
+ create mode 100644 .Rproj.user/3844950F/sources/prop/D3938E14
+ create mode 100644 .Rproj.user/3844950F/sources/prop/DC8C56E1
+ create mode 100644 .Rproj.user/3844950F/sources/prop/INDEX
+ create mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/488F72C4
+ create mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/488F72C4-contents
+ create mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/57E9A749
+ create mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/57E9A749-contents
+ create mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/720FB39C
+ create mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/720FB39C-contents
+ create mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/F821E130
+ create mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/F821E130-contents
+ create mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/lock_file
+ create mode 100644 .Rproj.user/shared/notebooks/36689FAF-harrell_plot_intro/1/3844950F81E20261/chunks.json
+ create mode 100644 .Rproj.user/shared/notebooks/36689FAF-harrell_plot_intro/1/3844950F9C2EA07E/chunks.json
+ create mode 100644 .Rproj.user/shared/notebooks/36689FAF-harrell_plot_intro/1/s/chunks.json
+ create mode 100644 .Rproj.user/shared/notebooks/36689FAF-harrell_plot_intro/1/s/cp8dxkc9ixl56/000002.csv
+ create mode 100644 .Rproj.user/shared/notebooks/36689FAF-harrell_plot_intro/1/s/cp8dxkc9ixl56/000003.error
+ create mode 100644 .Rproj.user/shared/notebooks/36689FAF-harrell_plot_intro/1/s/csetup_chunk/000003.metadata
+ create mode 100644 .Rproj.user/shared/notebooks/36689FAF-harrell_plot_intro/1/s/csetup_chunk/000003.rdf
+ create mode 100644 .Rproj.user/shared/notebooks/4AD83663-moss/1/s/chunks.json
+ create mode 100644 .Rproj.user/shared/notebooks/ADF7E67B-change_scores/1/s/chunks.json
+ create mode 100644 .Rproj.user/shared/notebooks/patch-chunk-names
+ create mode 100644 .Rproj.user/shared/notebooks/paths
+ create mode 100644 HarrellPlot.Rproj
+ create mode 100644 manuscript/.DS_Store
+ create mode 100644 manuscript/.Rhistory
+ create mode 100755 manuscript/PeerJ_template/PeerJ_template.Rmd
+ create mode 100644 manuscript/PeerJ_template/PeerJ_template.pdf
+ create mode 100644 manuscript/PeerJ_template/PeerJ_template.tex
+ create mode 100644 manuscript/PeerJ_template/PeerJ_template_files/figure-latex/results-1.pdf
+ create mode 100644 manuscript/PeerJ_template/sample.bib
+ create mode 100644 manuscript/PeerJ_template/view.jpg
+ create mode 100644 manuscript/PeerJ_template/wlpeerj.cls
+ create mode 100644 manuscript/data/.DS_Store
+ create mode 100644 manuscript/data/Appendix 1 radii in normal orb webs.xlsx
+ create mode 100644 manuscript/data/Appendix 2 frames in normal orb webs.xlsx
+ create mode 100644 manuscript/data/Appendix 3 radii in resting webs.xlsx
+ create mode 100644 manuscript/data/Appendix 4 frames in resting webs.xlsx
+ create mode 100644 manuscript/data/Appendix 5 radii in cocoon webs.xlsx
+ create mode 100644 manuscript/data/Appendix 6 frames in cocoon webs.xlsx
+ create mode 100644 manuscript/data/CTmax_2d_8_19,23.csv
+ create mode 100644 manuscript/data/CTmin_2d_8_19,23.csv
+ create mode 100644 manuscript/data/bees.txt
+ create mode 100644 manuscript/data/fly_burst.txt
+ create mode 100644 manuscript/data/moss.txt
+ create mode 100644 manuscript/data/moss2.txt
+ create mode 100644 manuscript/data/spider.txt
+ create mode 100644 manuscript/data/spider2.txt
+ create mode 100644 manuscript/data/zebra_sprint.txt
+ create mode 100644 manuscript/data/zebra_sprint_wide.txt
+ create mode 100644 manuscript/figs/.DS_Store
+ create mode 100644 manuscript/figs/fig1.intaglio/1.pdf
+ create mode 100644 manuscript/figs/fig1.intaglio/2.pdf
+ create mode 100644 manuscript/figs/fig1.intaglio/Drawing
+ create mode 100644 manuscript/figs/fig1.intaglio/Export.svg
+ create mode 100644 manuscript/figs/fig1.pdf
+ create mode 100644 manuscript/figs/moss.pdf
+ create mode 100644 manuscript/figs/zfish.pdf
+ create mode 100644 manuscript/output/.DS_Store
+ create mode 100644 manuscript/output/fake_mouse.txt
+ create mode 100644 manuscript/output/fake_mouse_long.txt
+ create mode 100644 manuscript/output/fig1a,b.pdf
+ create mode 100644 manuscript/output/fig1c.pdf
+ create mode 100644 manuscript/output/fly_Hplot.pdf
+ create mode 100644 manuscript/output/moss_Hplot.pdf
+ create mode 100644 manuscript/source/(original) Hplot_peerj.tex
+ create mode 100644 manuscript/source/.DS_Store
+ create mode 100644 manuscript/source/R_code.R
+ create mode 100644 manuscript/source/biblio.bib
+ create mode 100644 manuscript/source/copyright.html
+ create mode 100644 manuscript/source/harrell_plot_intro.Rmd
+ create mode 100644 manuscript/source/harrell_plot_intro.log
+ create mode 100644 manuscript/source/harrell_plot_intro.pdf
+ create mode 100644 manuscript/source/harrell_plot_intro.tex
+ create mode 100644 manuscript/source/moss.Rmd
+ create mode 100644 manuscript/source/moss_code.R
+ create mode 100644 manuscript/source/wlpeerj.cls
+ create mode 100644 manuscript/source/yaml-name.txt
+ create mode 100644 manuscript/test/(original) supplement_01-hdotplot_ms_code.Rnw
+ create mode 100644 manuscript/test/connecting_IDs.R
+ create mode 100644 manuscript/test/patchwork_play.R
+ create mode 100644 manuscript/test/test_alternative_thc_plot.R
+ create mode 100644 manuscript/test/test_data.R
+ create mode 100644 shiny/HarrellPlot/app.R
+ create mode 100644 shiny/HarrellPlot/import_directions.Rmd
+ create mode 100644 shiny/HarrellPlot/import_directions.html
+ create mode 100644 shiny/HarrellPlot/rsconnect/shinyapps.io/middleprofessor/HarrellPlot.dcf
+ create mode 100644 shiny/HarrellPlot/rsconnect/shinyapps.io/middleprofessor/Hdotplot.dcf
+ create mode 100644 shiny/HarrellPlot/what_this_app_does.png
+ create mode 100644 shiny/archive versions/working.01.txt
+ create mode 100644 shiny/archive versions/working.02.txt
+ create mode 100644 shiny/archive versions/working.03.txt
+ create mode 100644 shiny/archive versions/working.04.txt
+ create mode 100644 shiny/archive versions/working.05.txt
+ create mode 100644 shiny/archive versions/working.05b.txt
+ create mode 100644 shiny/archive versions/working.05c.txt
+ create mode 100644 shiny/archive versions/working.05d.txt
+ create mode 100644 shiny/archive versions/working.06.txt
+ create mode 100644 shiny/archive versions/working07.txt
+ create mode 100644 shiny/archive versions/working07b.txt
+ create mode 100644 shiny/archive versions/working08.txt
+ create mode 100644 shiny/archive versions/working08b.txt
+ create mode 100644 shiny/archive versions/working09.txt
+ create mode 100644 shiny/archive versions/working09b.txt
+ create mode 100644 shiny/archive versions/working10.txt
+ create mode 100644 shiny/archive versions/working11.txt
+ create mode 100644 shiny/archive versions/working11b.txt
+ create mode 100644 shiny/archive versions/working12.txt
+ create mode 100644 shiny/archive versions/working12b.txt
+ create mode 100644 shiny/archive versions/working13.txt
+ create mode 100644 shiny/archive versions/working13b.txt
+ create mode 100644 shiny/archive versions/working14.txt
+ create mode 100644 test/Hdotplot.6x7.new.pdf
+ create mode 100644 test/Hdotplot.6x7.pdf
+ create mode 100644 test/Hdotplot.pdf
+ create mode 100644 test/Hdotplot7x7.pdf
+ create mode 100644 test/contrasts.RDS
+ create mode 100644 test/fly_burst2.txt
+ create mode 100644 test/gg_contrasts.RDS
+ create mode 100644 test/plot.rds
+ create mode 100644 test/test
+ create mode 100644 test/test.Rdata
+ create mode 100644 test/treatments.RDS
+]0;~/Google Drive/Research/Projects/HarrellPlot project folder/HarrellPlotJeff-Walkers-imac:HarrellPlot walker$ git push origin master # we push the changes from the local gi t repo to 
+Counting objects: 195, done.
+Delta compression using up to 4 threads.
+Compressing objects:   0% (1/173)   Compressing objects:   1% (2/173)   Compressing objects:   2% (4/173)   Compressing objects:   3% (6/173)   Compressing objects:   4% (7/173)   Compressing objects:   5% (9/173)   Compressing objects:   6% (11/173)   Compressing objects:   7% (13/173)   Compressing objects:   8% (14/173)   Compressing objects:   9% (16/173)   Compressing objects:  10% (18/173)   Compressing objects:  11% (20/173)   Compressing objects:  12% (21/173)   Compressing objects:  13% (23/173)   Compressing objects:  14% (25/173)   Compressing objects:  15% (26/173)   Compressing objects:  16% (28/173)   Compressing objects:  17% (30/173)   Compressing objects:  18% (32/173)   Compressing objects:  19% (33/173)   Compressing objects:  20% (35/173)   Compressing objects:  21% (37/173)   Compressing objects:  22% (39/173)   Compressing objects:  23% (40/173)   Compressing objects:  24% (42/173)   Compressing objects:  25% (44/173)   Compressing objects:  26% (45/173)   Compressing objects:  27% (47/173)   Compressing objects:  28% (49/173)   Compressing objects:  29% (51/173)   Compressing objects:  30% (52/173)   Compressing objects:  31% (54/173)   Compressing objects:  32% (56/173)   Compressing objects:  33% (58/173)   Compressing objects:  34% (59/173)   Compressing objects:  35% (61/173)   Compressing objects:  36% (63/173)   Compressing objects:  37% (65/173)   Compressing objects:  38% (66/173)   Compressing objects:  39% (68/173)   Compressing objects:  40% (70/173)   Compressing objects:  41% (71/173)   Compressing objects:  42% (73/173)   Compressing objects:  43% (75/173)   Compressing objects:  44% (77/173)   Compressing objects:  45% (78/173)   Compressing objects:  46% (80/173)   Compressing objects:  47% (82/173)   Compressing objects:  48% (84/173)   Compressing objects:  49% (85/173)   Compressing objects:  50% (87/173)   Compressing objects:  51% (89/173)   Compressing objects:  52% (90/173)   Compressing objects:  53% (92/173)   Compressing objects:  54% (94/173)   Compressing objects:  55% (96/173)   Compressing objects:  56% (97/173)   Compressing objects:  57% (99/173)   Compressing objects:  58% (101/173)   Compressing objects:  59% (103/173)   Compressing objects:  60% (104/173)   Compressing objects:  61% (106/173)   Compressing objects:  62% (108/173)   Compressing objects:  63% (109/173)   Compressing objects:  64% (111/173)   Compressing objects:  65% (113/173)   Compressing objects:  66% (115/173)   Compressing objects:  67% (116/173)   Compressing objects:  68% (118/173)   Compressing objects:  69% (120/173)   Compressing objects:  70% (122/173)   Compressing objects:  71% (123/173)   Compressing objects:  72% (125/173)   Compressing objects:  73% (127/173)   Compressing objects:  74% (129/173)   Compressing objects:  75% (130/173)   Compressing objects:  76% (132/173)   Compressing objects:  77% (134/173)   Compressing objects:  78% (135/173)   Compressing objects:  79% (137/173)   Compressing objects:  80% (139/173)   Compressing objects:  81% (141/173)   Compressing objects:  82% (142/173)   Compressing objects:  83% (144/173)   Compressing objects:  84% (146/173)   Compressing objects:  85% (148/173)   Compressing objects:  86% (149/173)   Compressing objects:  87% (151/173)   Compressing objects:  88% (153/173)   Compressing objects:  89% (154/173)   Compressing objects:  90% (156/173)   Compressing objects:  91% (158/173)   Compressing objects:  92% (160/173)   Compressing objects:  93% (161/173)   Compressing objects:  94% (163/173)   Compressing objects:  95% (165/173)   Compressing objects:  96% (167/173)   Compressing objects:  97% (168/173)   Compressing objects:  98% (170/173)   Compressing objects:  99% (172/173)   Compressing objects: 100% (173/173)   Compressing objects: 100% (173/173), done.
+Writing objects:   0% (1/195)   Writing objects:   1% (2/195)   Writing objects:   2% (5/195)   Writing objects:   3% (6/195)   Writing objects:   4% (8/195)   Writing objects:   5% (10/195)   Writing objects:   6% (13/195)   Writing objects:   7% (14/195)   Writing objects:   8% (16/195)   Writing objects:   9% (18/195)   Writing objects:  10% (20/195)   Writing objects:  11% (22/195)   Writing objects:  12% (24/195)   Writing objects:  13% (27/195)   Writing objects:  14% (28/195)   Writing objects:  15% (30/195)   Writing objects:  16% (32/195)   Writing objects:  17% (34/195)   Writing objects:  18% (36/195)   Writing objects:  19% (38/195)   Writing objects:  20% (39/195)   Writing objects:  21% (41/195)   Writing objects:  22% (43/195)   Writing objects:  23% (45/195)   Writing objects:  24% (47/195)   Writing objects:  25% (49/195)   Writing objects:  26% (51/195)   Writing objects:  27% (53/195)   Writing objects:  28% (56/195)   Writing objects:  29% (57/195)   Writing objects:  30% (59/195)   Writing objects:  31% (61/195)   Writing objects:  32% (63/195)   Writing objects:  33% (65/195)   Writing objects:  34% (67/195)   Writing objects:  35% (69/195)   Writing objects:  36% (71/195)   Writing objects:  37% (73/195)   Writing objects:  38% (75/195)   Writing objects:  39% (77/195)   Writing objects:  40% (78/195)   Writing objects:  41% (80/195)   Writing objects:  42% (82/195)   Writing objects:  43% (84/195)   Writing objects:  44% (86/195)   Writing objects:  45% (88/195)   Writing objects:  46% (90/195)   Writing objects:  47% (92/195)   Writing objects:  48% (94/195)   Writing objects:  49% (96/195)   Writing objects:  50% (98/195)   Writing objects:  51% (100/195)   Writing objects:  51% (101/195), 1.92 MiB | 1.04 MiB/s   Writing objects:  52% (102/195), 1.92 MiB | 1.04 MiB/s   Writing objects:  52% (102/195), 2.55 MiB | 942.00 KiB/s   Writing objects:  52% (103/195), 3.18 MiB | 918.00 KiB/s   Writing objects:  52% (103/195), 3.80 MiB | 835.00 KiB/s   Writing objects:  52% (103/195), 4.42 MiB | 846.00 KiB/s   Writing objects:  52% (103/195), 5.05 MiB | 840.00 KiB/s   Writing objects:  52% (103/195), 6.29 MiB | 819.00 KiB/s   Writing objects:  52% (103/195), 6.91 MiB | 723.00 KiB/s   Writing objects:  52% (103/195), 7.53 MiB | 728.00 KiB/s   Writing objects:  53% (104/195), 7.53 MiB | 728.00 KiB/s   Writing objects:  53% (104/195), 8.15 MiB | 733.00 KiB/s   Writing objects:  53% (105/195), 8.77 MiB | 735.00 KiB/s   Writing objects:  53% (105/195), 9.38 MiB | 763.00 KiB/s   Writing objects:  53% (105/195), 10.62 MiB | 720.00 KiB/s   Writing objects:  53% (105/195), 11.86 MiB | 743.00 KiB/s   Writing objects:  53% (105/195), 12.48 MiB | 764.00 KiB/s   Writing objects:  53% (105/195), 13.10 MiB | 760.00 KiB/s   Writing objects:  53% (105/195), 13.72 MiB | 761.00 KiB/s   Writing objects:  53% (105/195), 14.96 MiB | 705.00 KiB/s   Writing objects:  53% (105/195), 16.20 MiB | 611.00 KiB/s   Writing objects:  53% (105/195), 16.84 MiB | 552.00 KiB/s   Writing objects:  54% (106/195), 16.84 MiB | 552.00 KiB/s   Writing objects:  54% (106/195), 17.48 MiB | 513.00 KiB/s   Writing objects:  54% (106/195), 18.11 MiB | 508.00 KiB/s   Writing objects:  54% (106/195), 18.75 MiB | 509.00 KiB/s   Writing objects:  54% (106/195), 19.38 MiB | 509.00 KiB/s   Writing objects:  54% (106/195), 20.02 MiB | 509.00 KiB/s   Writing objects:  54% (106/195), 20.66 MiB | 532.00 KiB/s   Writing objects:  55% (108/195), 20.66 MiB | 532.00 KiB/s   Writing objects:  56% (110/195), 20.66 MiB | 532.00 KiB/s   Writing objects:  57% (112/195), 20.66 MiB | 532.00 KiB/s   Writing objects:  58% (114/195), 20.66 MiB | 532.00 KiB/s   Writing objects:  59% (116/195), 20.66 MiB | 532.00 KiB/s   Writing objects:  60% (117/195), 20.66 MiB | 532.00 KiB/s   Writing objects:  61% (119/195), 20.66 MiB | 532.00 KiB/s   Writing objects:  62% (122/195), 20.66 MiB | 532.00 KiB/s   Writing objects:  63% (123/195), 20.66 MiB | 532.00 KiB/s   Writing objects:  63% (124/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  64% (126/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  65% (127/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  66% (129/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  67% (131/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  68% (133/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  69% (136/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  70% (137/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  71% (139/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  72% (141/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  73% (143/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  74% (145/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  75% (147/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  76% (149/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  77% (151/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  78% (153/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  79% (155/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  80% (156/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  81% (158/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  82% (160/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  86% (169/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  87% (170/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  88% (172/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  90% (176/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  91% (178/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  92% (180/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  93% (182/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  94% (184/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  95% (186/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  96% (188/195), 21.28 MiB | 524.00 KiB/s   Writing objects:  96% (188/195), 22.54 MiB | 658.00 KiB/s   Writing objects:  96% (188/195), 23.17 MiB | 719.00 KiB/s   Writing objects:  97% (190/195), 23.17 MiB | 719.00 KiB/s   Writing objects:  98% (192/195), 23.17 MiB | 719.00 KiB/s   Writing objects:  99% (194/195), 23.17 MiB | 719.00 KiB/s   Writing objects:  99% (194/195), 23.46 MiB | 695.00 KiB/s   Writing objects: 100% (195/195), 23.46 MiB | 695.00 KiB/s   Writing objects: 100% (195/195), 23.77 MiB | 683.00 KiB/s, done.
+Total 195 (delta 39), reused 0 (delta 0)
+remote: Resolving deltas:   0% (0/39)   [Kremote: Resolving deltas:  10% (4/39)   [Kremote: Resolving deltas:  12% (5/39)   [Kremote: Resolving deltas:  15% (6/39)   [Kremote: Resolving deltas:  17% (7/39)   [Kremote: Resolving deltas:  20% (8/39)   [Kremote: Resolving deltas:  25% (10/39)   [Kremote: Resolving deltas:  28% (11/39)   [Kremote: Resolving deltas:  35% (14/39)   [Kremote: Resolving deltas:  38% (15/39)   [Kremote: Resolving deltas:  41% (16/39)   [Kremote: Resolving deltas:  43% (17/39)   [Kremote: Resolving deltas:  79% (31/39)   [Kremote: Resolving deltas:  94% (37/39)   [Kremote: Resolving deltas: 100% (39/39)   [Kremote: Resolving deltas: 100% (39/39), done.[K
+To github.com:middleprofessor/harrell-plot.git
+   944486f..462fa49  master -> master
+[KJeff-Walkers-imac:HarrellPlot walker$ 

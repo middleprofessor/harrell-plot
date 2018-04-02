@@ -1,30 +1,42 @@
 ---
-title: Combining data, distribution summary, model effects, and uncertainty in a single plot
-preprint: false
-author: 
-  - name: Jeffrey A. Walker
-    affiliation:
-    - walker@maine.edu
-    - Department of Biological Sciences, University of Southern Maine, 70 Falmouth Street, Portland, ME 04103
-abstract: >
-  A Harrell plot combines a forest plot of estimated treatment effects and uncertainty, a dot plot of raw data, and a box plot of the distribution of the raw data into a single plot. A Harrell plot encourages best practices such as exploration of the distribution of the data and focus on effect size and uncertainty, while discouraging bad practices such as ignoring distributions and focusing on $p$-values. Consequently, a Harrell plot should replace the bar plots and Cleveland dot plots that are currently ubiquitous in the literature.
-header-includes: >
-  \usepackage{lipsum}
+title: Combining data, distribution summary, model effects, and uncertainty in a single
+  plot
+author:
+- affiliation:
+  - walker@maine.edu
+  - Department of Biological Sciences, University of Southern Maine, 70 Falmouth Street,
+    Portland, ME 04103
+  name: Jeffrey A. Walker
 bibliography: biblio.bib
-output: 
-  BiocStyle::html_document2:
-    toc: true
-    toc_depth: 2
-    toc_float: true
+output:
+  BiocStyle::pdf_document:
+    keep_tex: yes
+    fig_caption: yes
+    toc: no
+  BiocStyle::html_document:
     fig_caption: yes
     includes:
       before_body: copyright.html
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  bookdown::pdf_document2:
+    fig_caption: yes
+    toc: no
   rticles::peerj_article:
-    base_format: bookdown::pdf_document2 # for using \@ref() #rmarkdown::pdf_document # 
+    base_format: bookdown::pdf_document2
+preprint: no
+shorttitle: Harrell Plots
+abstract: |
+  A Harrell plot combines a forest plot of estimated treatment effects and uncertainty, a dot plot of raw data, and a box plot of the distribution of the raw data into a single plot. A Harrell plot encourages best practices such as exploration of the distribution of the data and focus on effect size and uncertainty, while discouraging bad practices such as ignoring distributions and focusing on $p$-values. Consequently, a Harrell plot should replace the bar plots and Cleveland dot plots that are currently ubiquitous in the literature.
 ---
 
 ```{r setup, warning=FALSE, echo=FALSE, message=FALSE}
 knitr::opts_knit$set(root.dir = getwd()) #echo=FALSE has to be set in each R chunk?
+output_path <- '../output/' # for knit
+data_path <- '../data/' # for knit
+# output_path <- 'manuscript/output/' # for console
+# data_path <- 'manuscript/data/' # for console
 
 # Scripts for Harrell Plot.
 # these are taken from HarrellPlot Shiny app working 15 (March 23, 2018)
@@ -598,14 +610,14 @@ HarrellPlot <- function(
 # Introduction {-}
 Recommended best practices for the reporting of statistical results include 1) showing the raw data and/or distribution of data in plots [@Drummond_Show_2011; @Weissgerber_Bar_2015; @Spitzer_BoxPlotR_2014; @Krzywinski_Points_2014; @Harrell_Principles_2014; @Weissgerber_Transparent_2016] and focusing on 2) effect size and (3) uncertainty in effect estimates instead of $p$-values of null hypothesis tests [@Nakagawa_Effect_2007;  @Yoccoz_Use_1991; @Johnson_insignificance_1999; @Curran-Everett_Fundamental_1998]. By contrast, standard practice throughout experimental biology includes the reporting of ANOVA results in tables and treatment means and standard errors of the mean in plots. At best, ANOVA tables poorly communicate effect size and uncertainty. Effects and uncertainty can be inferred from plots of treatment means and standard errors only indirectly.
 
-Here, I introduce the Harrell plot, a tool to communicate statistical results from experiments, or any analysis with categorical independent variables (ANOVA-like linear models). A Harrell plot combines 1) a dot plot to show individual values, 2) a box plot to show the distribution of the response within treatment groups, and 3) a forest plot of effect estimates and confidence intervals to show modeled effect sizes and uncertainty. The combination of the effects in the top part and distribution in the bottom part of a Harrell plot was inspired by Fig. 1.1 of @Harrell_Principles_2014. The Harrell plot is implemented as an online [HarrellPlot Shiny app](https://middleprofessor.shinyapps.io/HarrellPlot/) for users with no or limited R experience, including undergraduate biology majors. An R package for users with some R experience is in development.
+Here, I introduce the Harrell plot, a tool to communicate statistical results from experiments, or any analysis with categorical independent variables (ANOVA-like linear models). A Harrell plot combines 1) a dot plot to show individual values, 2) a box plot to show the distribution of the response within treatment groups, and 3) a forest plot of effect estimates and confidence intervals to show modeled effect sizes and uncertainty. The combination of the effects in the top part and distribution in the bottom part of a Harrell plot was inspired by Fig. 1.1 of @Harrell_Principles_2014. The Harrell plot is implemented as an online [HarrellPlot Shiny app](https://middleprofessor.shinyapps.io/HarrellPlot/) [@Walker_HarrellPlot_2017] for users with no or limited R experience, including undergraduate biology majors. An R package for users with some R experience is in development.
 
 # Effect size and uncertainty {-}
 By effect, or effect size, I mean the magnitude and direction of the difference in response to some treatment, or some combination of treatments. If the mean critical thermal minimum is 5.1 $^\circ$ C in the control group of flies and 5.8 $^\circ$ C in the treated group, then the effect is $5.8 ^\circ \textrm{C} - 5.1 \textrm{C} = +0.7 ^\circ \textrm{C}$. The non-intercept coefficients of a linear model are effects. Contrasts of a linear model are effects. A confidence interval of the effect is a measure of the uncertainty in the estimate.  A 95% confidence interval of the effect has a 95\% probability (in the sense of long-run frequency) of containing the true effect. This probability is a property of the population of intervals that could be computed using the same sampling and measuring procedure. It is not correct, without further assumptions, to state that there is a 95% probability that the true effect lies within the interval. However, if we have only weak prior beliefs about the possible values of the effect, then it is valid, though possibly misleading, to state that there is an approximately 95\% probability that the true effect lies in the interval [@Greenland_Living_2013; @Gelman_Values_2013]. Perhaps a more useful interpretation is that the interval contains the range of effects that are consistent with the data, in the sense that a $t$-test would not reject the null hypothesis of a difference between the estimate and any value within the interval (this interpretation does not imply anything about the true value).
 
-While many experiments in biology are conducted with a proximate goal of discovering or confirming that an effect exists (that is, the effect is something other than zero), the ultimate goal of a research program should be to understand the biological (including clinical, behavioral, ecological or evolutionary) consequences of effects [@Yoccoz_Use_1991; @Curran-Everett_Fundamental_1998; @Nakagawa_Effect_2007; @Batterham_Making_2006]. These consequences are functions of effect magnitude and direction and, consequently, estimates of effect size and uncertainty are tools for these ultimate goals. By contrast, hypothesis testing and $p$-values are tools only for the more proximate goal of effect presence. Importantly, the discovery that an effect exists requires more than a $p$-value, including both replicate experiments and modified experiments that "probe their experimental systems in multiple, independent ways" [@Vaux_Research_2012; see also @Munafo_Robust_2018]. Probing is standard in much of cell and molecular biology [but see @KaelinJr_Publish_2017]. Replications are uncommon throughout most of experimental biology. It probably cannot be emphasized enough that finding statistically significant $p$-values is a very low-bar in experimental biology. All components of complex physiological systems are causally connected and perturbing any feature of a system will have some effect on everything, however small (this may not be true in a simplified experimental system with a minimal number of components). Consequently, Type I errors will not exist in complex systems and the concept of null-hypothesis testing becomes meaningless. Instead, researchers should be concerned with sign and magnitude errors [@Gelman_Power_2014] and with conditional dependencies.
+While many experiments in biology are conducted with a proximate goal of discovering or confirming that an effect exists (that is, the effect is something other than zero), the ultimate goal of a research program should be to understand the biological (including clinical, behavioral, ecological or evolutionary) consequences of effects [@Yoccoz_Use_1991; @Curran-Everett_Fundamental_1998; @Nakagawa_Effect_2007; @Batterham_Making_2006]. These consequences are functions of effect magnitude and direction and, consequently, estimates of effect size and uncertainty are tools for these ultimate goals. By contrast, hypothesis testing and $p$-values are tools only for the more proximate goal of effect presence. Importantly, the discovery that an effect exists requires more than a $p$-value, including both replicate experiments and modified experiments that "probe their experimental systems in multiple, independent ways" [@Vaux_Research_2012; see also @Munafo_Robust_2018]. Probing is standard in much of cell and molecular biology [but see @KaelinJr_Publish_2017]. Replications are uncommon throughout most of experimental biology. It probably cannot be emphasized enough that finding statistically significant $p$-values is a very low-bar in experimental biology. All components of complex physiological systems are causally connected and perturbing any feature of a system will have some effect on everything, however small (although true null effects may occur in experimental systems with a minimal number of components). While $p$-values are a useful, if limited, tool in a researchers toolbox, Type I errors will generally not exist in complex systems and significance testing (comparing a $p$-value to a Type I error rate, the binning of results into "significant" or "non-significant", using asterisks to indicate "levels of significance") should be avoided. Instead, researchers should be concerned with sign and magnitude errors [@Gelman_Power_2014] and with conditional dependencies.
 
-```{r confidence, out.width = "100%", fig.cap="Magnitude based inference using confidence intervals", echo=FALSE}
+```{r make_confidence, echo=FALSE, results='hide'}
 # magnitude-based inference 
 bs <- c(0.6, 0.8, 1) # biologically sig
 am1 <- c(0.4, 0.8, 1.2) # ambiguous 1
@@ -625,7 +637,18 @@ gg <- ggplot(data=dt, aes(x=Interpretation, y=Effect)) +
   coord_flip(ylim=c(-.05, 1.25)) +
   theme_minimal() +
   theme(axis.title.y = element_blank())
-gg
+
+image_path <- paste(output_path, 'confidence.pdf', sep='') # for knit
+
+pwidth <- 6
+pheight <- 4
+pdf(image_path, width=pwidth, height=pheight, onefile = TRUE)
+grid.arrange(gg, nrow=1, ncol=1) 
+dev.off()
+```
+
+```{r confidence, echo=FALSE, fig.cap="Magnitude based inference using confidence intervals", echo=FALSE}
+knitr::include_graphics(image_path)
 ```
 
 Confidence intervals of effects can be (and are most often) used to infer "statistical significance". Statisticians have long advocated for the far more valuable use of a confidence interval as a tool to infer the sensitivity of an interpretation or conclusion to the data [@Tukey_Philosophy_1991]. Again, a confidence interval of an effect gives the range of parameter values that are consistent with the data [@Amrhein_earth_2017b]. Consequently, as evidence for a theory in academic biology or a decision in applied biology, the whole range of values within a confidence interval, and not just the mean or median, should be consistent with an interpretation or conclusion, otherwise the data are ambiguous (or "inconclusive", but this might suggest that the results from a single study could ever be "conclusive"). One scheme for implementing this strategy is "magnitude-based inference", summarized in figure \@ref(fig:confidence), which is a modification of figure 2 of [@Barker_Inference_2008], which itself is a corrected interpretation of figure 2 in [@Batterham_Making_2006] (of course, by merely creating a boundary between trivial and consequential effect size, this strategy encourages rather than discourages dichotomization).
@@ -666,16 +689,14 @@ res <- HarrellPlot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction
 gg.hdot <- res$gg 
 # gg.hdot
 
-#fn <- "../HarrellPlot/manuscript/output/fig1a,b.pdf" # for console
-fn <- "../output/fig1a,b.pdf" # for console
+image_path <- paste(output_path, "fig1a,b.pdf")
 pwidth <- 7
 pheight <- 3
-pdf(fn, width=pwidth, height=pheight, onefile = TRUE)
+pdf(image_path, width=pwidth, height=pheight, onefile = TRUE)
 grid.arrange(gg.bar, gg.me, nrow=1, ncol=2) 
 dev.off()
 
-fn <- '../HarrellPlot/manuscript/output/fig1c.pdf'
-fn <- "../output/fig1c.pdf" # for console
+image_path <- paste(output_path, "fig1c.pdf")
 pwidth <- 7
 pheight <- 5
 pdf(fn, width=pwidth, height=pheight, onefile = TRUE)
@@ -686,7 +707,7 @@ dev.off()
 
 ```
 
-```{r plots, out.width = "100%", fig.cap = "Three methods for communicating results of an experiment. In the bar plot (A) and a Cleveland dot plot (B), the treatment effect is inferred by mentally computing the distance between treatment means. In the Harrell plot (C), the treatment effect is plotted in addition to the treatment means. Key: AA selected flies, CN control flies, F female, M male", echo=FALSE}
+```{r plots, fig.cap = "Three methods for communicating results of an experiment. In the bar plot (A) and a Cleveland dot plot (B), the treatment effect is inferred by mentally computing the distance between treatment means. In the Harrell plot (C), the treatment effect is plotted in addition to the treatment means. Key: AA selected flies, CN control flies, F female, M male", echo=FALSE}
 
 image_path <- "../figs/fig1.pdf"
 knitr::include_graphics(image_path)
@@ -707,12 +728,10 @@ The raw data are shown in the lower part of the plot using jittered dots, cluste
 
 # How Harrell plots improve inference  {-}
 
-## Harrell plots focus on effect size and uncertainty {-}
+## Harrell plots discourage asterisks and letters {-}
 
-```{r flyBar, echo=FALSE, out.width="100%", fig.cap="Bar plot of fly data. Error bars are 1 SEM. Asterisks indicate level of significance of inference test."}
-path <- '../data/' # for knit
-# path <- 'manuscript/data/' # for console
-fn <- paste(path, 'fly_burst.txt', sep='') # for knit
+```{r make_flyBar, echo=FALSE, results='hide'}
+fn <- paste(data_path, 'fly_burst.txt', sep='') # for knit
 fly <- fread(fn, stringsAsFactors = TRUE)
 fly[, Treatment:=factor(Treatment, c('CN', 'AA'))]
 fly_lm <- lm(Vburst ~ Treatment*Sex, data=fly)
@@ -731,10 +750,19 @@ gg_bar <- ggplot(data=fly, aes(x=Treatment, y=Vburst, fill=Sex, group=Sex)) +
   annotate("text", x=1, y=150, label=c('*'), size=14) +
   annotate("segment", x=1-.25, y=190, xend=2-.25, yend=190, size=2) +
   annotate("text", x=1.5-.25, y=195, label=c('***'), size=14) +
-  annotate("segment", x=1+.25, y=210, xend=2+.25, yend=210, size=2) +
-  annotate("text", x=1.5+.25, y=215, label=c('***'), size=14)
+  annotate("segment", x=1+.25, y=217, xend=2+.25, yend=217, size=2) +
+  annotate("text", x=1.5+.25, y=222, label=c('***'), size=14)
 
-gg_bar
+image_path <- paste(output_path, 'flyBar.pdf', sep='') # for knit
+pwidth <- 6
+pheight <- 4
+pdf(image_path, width=pwidth, height=pheight, onefile = TRUE)
+grid.arrange(gg_bar, nrow=1, ncol=1) 
+dev.off()
+```
+
+```{r flyBar, echo=FALSE, fig.cap="Bar plot of fly data. Error bars are 1 SEM. Asterisks indicate level of significance of inference test."}
+knitr::include_graphics(image_path)
 ```
 
 ```{r make_flyHarrell, echo=FALSE, results='hide'}
@@ -742,9 +770,7 @@ gg_bar
 res <- HarrellPlot(x='Treatment', y='Vburst', g='Sex', data=fly, add_interaction = TRUE, interaction.group = TRUE, contrasts.method = 'revpairwise', contrasts.scaling = 'percent', y_label = ('Burst Speed (cm/s)'))
 gg_hplot <- res$gg
 
-path <- '../output/' # for knit
-#path <- 'manuscript/output/' # for console
-image_path <- paste(path, 'fly_Hplot.pdf', sep='') # for knit
+image_path <- paste(output_path, 'fly_Hplot.pdf', sep='') # for knit
 pwidth <- 8
 pheight <- 6
 pdf(image_path, width=pwidth, height=pheight, onefile = TRUE)
@@ -755,21 +781,18 @@ dev.off()
 mean_sed <- mean(res$tables$contrasts[, SE])
 ```
 
-```{r flyHarrell, echo=FALSE, out.width="90%", fig.cap="Harrell plot of fly linear model results. Error bars are 95\\% confidence intervals"}
-path <- '../output/' # for knit
-#path <- 'manuscript/output/' # for console
-image_path <- paste(path, 'fly_Hplot.pdf', sep='') # for knit
+```{r flyHarrell, echo=FALSE, fig.cap="Harrell plot of fly linear model results. Error bars are 95\\% confidence intervals"}
 knitr::include_graphics(image_path)
 
 ```
-
-asterisks encourage "big effects"
 
 Figure \@ref(fig:flyBar) is a bar plot with 1 SE bar for the results of the *Drosophila* wind-tunnel selection experiment described above. The asterisks, which indicate statistically significant $p$-values for tests of specific contrasts, draw the researcher and reader into comparing means using the heights of the bars. The asterisks are helpful for this because the standard error bars are not especially helpful given the computations necessary to go from the illustrated SEMs to the relevant SEDs. But the asterisks encourage the researcher/reader into focussing on $p$-values of inferential tests, which should be discouraged instead. Even more egregiously, the asterisks encourage the researcher/reader to misinterpret the number of asterisks as effect size.
 
 A Harrell plot (figure \@ref(fig:flyHarrell), by contrast, nudges researchers/readers to focus on modeled effect size and uncertainty instead of classification of results into "significant" and "non-significant" bins (or "highly significant" bins). Here, I've scaled the contrasts as percents, since I haven't given much thought to the biological consequences of a 50 cm/s increase in burst speed (in fact, percents discourage the hard work of understanding the biological consequences of effect size). Certainly, one can use the 95% confidence limits to mentally bin comparisons into significant and non-significant bins, but the plot itself does not encourage it. Instead, the plot encourages a researcher/reader to consider how the range of values in a CI support, or fail to support, different interpretations of the results. For example, the effects of the long term selection experiment is much larger than the effects of sex on burst speed. And, a model of males having smaller burst speed relative to females in both wind-tunnel selected (AA) and control (CN) flies is consistant with the data.
 
-```{r mouseBarPlot, echo=FALSE, out.width="100%", fig.cap="Increase in body fat in the fake mouse data. (A) Percent increase. (B) Raw measures of body fat at baseline and at the end of the treatment period. Error bars are 1SE. "}
+## Harrell plots explicitly show modeled treatment effects and uncertainty {-}
+
+```{r make_mouseBarPlot, echo=FALSE, results='hide'}
 # from Bias in pre-post designs -- An example from the Turnbaugh et al (2006) mouse fecal transplant study -- Walker 2018
 
 # create data.table of Turnbaugh mouse body fat data. Numbers are from paper.
@@ -810,13 +833,11 @@ fake_mouse <- data.table(ID=factor(1:N),
 fake_mouse[, change:=final-init]
 fake_mouse[, percent:=change/init*100]
 
-path <- '../output/' # for knit
-# path <- 'manuscript/output/' # for console
-fout <- paste(path, 'fake_mouse.txt', sep='')
+fout <- paste(output_path, 'fake_mouse.txt', sep='')
 write.table(fake_mouse, fout, row.names=FALSE, quote=FALSE, sep='\t')
 
 fake_mouse_long <- melt(fake_mouse, id.vars=c('ID', 'treatment'), measure.vars=c('init', 'final'), variable.name='Time', value.name='Weight')
-fout <- paste(path, 'fake_mouse_long.txt', sep='')
+fout <- paste(output_path, 'fake_mouse_long.txt', sep='')
 write.table(fake_mouse_long, fout, row.names=FALSE, quote=FALSE, sep='\t')
 
 fake_mouse_sum <- fake_mouse[, .(final=mean(final),
@@ -846,28 +867,48 @@ gg_inter <- ggplot(data=fake_mouse_long, aes(x=Time, y=Weight, group=treatment, 
   stat_summary(fun.y=mean, geom='point', position = position_dodge(pd), color='white', size=4) +
   stat_summary(fun.y=mean, geom='point', position = position_dodge(pd), color='black', size=3) +
   theme_minimal() +
+#  theme(legend.postion='top') +
   ylab('Body fat (grams)') +
   scale_fill_brewer(palette = 'Greys')
 
 # coefficients(summary(lm(Weight ~ treatment*Time, data=fake_mouse_long)))
 
+image_path <- paste(output_path, 'mouseBarPlot.pdf', sep='') # for knit
+pwidth <- 8
+pheight <- 6
+pdf(image_path, width=pwidth, height=pheight, onefile = TRUE)
 plot_grid(gg_bar, gg_inter, labels = c("A", "B"), align = "h")
+dev.off()
 
 ```
 
-## Harrell plots explicitly show modeled treatment effects and uncertainty {-}
+```{r mouseBarPlot, echo=FALSE, fig.cap="Increase in body fat in the fake mouse data. (A) Percent increase. (B) Raw measures of body fat at baseline and at the end of the treatment period. Error bars are 1SE."}
+knitr::include_graphics(image_path)
 
-A second major advantage of a Harrell plot over bar plots and Cleveland dot plots is the explicit, instead of implicit, illustration of modeled effects and uncertainty, which makes inference from a plot consistent with inference from a statistical analysis summarized in a table or in the text. For example, @Turnbaugh_obesityassociated_2006a published a figure like that in figure \@ref(fig:mouseBarPlot)A, which compares the percent increase in body fat for mice colonized with microbes from feces from obese (*ob/ob*) mice and for mice colonized with microbes from feces from normal (+/+) mice. The data are simulated to mimic the summary statistics of those given in the original paper [@Turnbaugh_obesityassociated_2006a; see @Walker_Bias_2018]. Turnbaugh et al. inferred an effect from a simple $t$-test of these percent change scores. The relevant statistics are the difference in means and the standard error of this difference (SED). While it is easy to mentally reconstruct the difference in means from the bar plot, it is very hard to mentally reconstruct a very useful SED because it is a function of two standard errors of the mean (SEM) and because both SEMs are noticeably different for these data. The relevant effect and its error are even harder to infer from the plot of the raw pre-post means (figure \@ref(fig:mouseBarPlot)B), because the effect is the $Time \times Treatment$ interaction.
+```
 
-```{r mouseHarrellPlot, echo=FALSE, out.width="100%", fig.cap="A Harrell plot of the simulated mouse data. Effects are shown as a percent to be consistent with the original plot from Turnbaugh et al. 2006. The lower panel is a box plot of the percent change in body fat weights. The means are shown with the large dot with a white halo. The unconditional difference between these means is 22\\%, similar to that in the original data. The upper panel is the contrast between treatment levels -- the difference in percent weight change -- from the linear model with initial weight as a covariate. The error bar is a 95\\% confidence interval of this effect. This conditional effect is 3\\% and the confidence interval is consistent with both small negative and small positive effects."}
+It is reasonably straightforward to reconstruct raw differences among groups from a mean-and-error plot, but a major advantage of a Harrell plot is the explicit display of modeled effects and uncertainty. This visual display of modeled effects makes inference from a plot consistent with inference from a statistical analysis summarized in a table or in the text. For example, @Turnbaugh_obesityassociated_2006a published a figure like that in figure \@ref(fig:mouseBarPlot)A, which compares the percent increase in body fat for mice colonized with microbes from feces from obese (*ob/ob*) mice and for mice colonized with microbes from feces from normal (+/+) mice. The data are simulated to mimic the summary statistics of those given in the original paper [@Turnbaugh_obesityassociated_2006a; see @Walker_Bias_2018]. Turnbaugh et al. inferred an effect from a simple $t$-test of these percent change scores. The relevant statistics are the difference in means and the standard error of this difference (SED). While it is easy to mentally reconstruct the difference in means from the bar plot, it is very hard to mentally reconstruct a very useful SED because it is a function of two standard errors of the mean (SEM) and because both SEMs are noticeably different for these data. The relevant effect and its error are even harder to infer from the plot of the raw pre-post means (figure \@ref(fig:mouseBarPlot)B), because the effect is the $Time \times Treatment$ interaction.
+
+```{r make_mouseHarrellPlot, echo=FALSE, results='hide'}
 # plot using HarrellPlot
 res <- HarrellPlot(x='treatment', y='percent', covcols='init', data=fake_mouse, y_label = ('Increase in Body Fat (%)'))
-res$gg 
+image_path <- paste(output_path, 'mouseHarrellPlot.pdf', sep='') # for knit
+pwidth <- 8
+pheight <- 6
+pdf(image_path, width=pwidth, height=pheight, onefile = TRUE)
+grid.arrange(res$gg, nrow=1, ncol=1) 
+dev.off()
+```
+
+```{r mouseHarrellPlot, echo=FALSE, fig.cap="A Harrell plot of the simulated mouse data. Effects are shown as a percent to be consistent with the original plot from Turnbaugh et al. 2006. The lower panel is a box plot of the percent change in body fat weights. The means are shown with the large dot with a white halo. The unconditional difference between these means is 22\\%, similar to that in the original data. The upper panel is the contrast between treatment levels -- the difference in percent weight change -- from the linear model with initial weight as a covariate. The error bar is a 95\\% confidence interval of this effect. This conditional effect is 3\\% and the confidence interval is consistent with both small negative and small positive effects."}
+
+knitr::include_graphics(image_path)
 ```
 
 Inference of treatment effect in both analyses in figure (\@ref(fig:mouseBarPlot)A) (which would be the same if the analysis in A were on the raw change) suffer from regression to the mean [@Walker_Bias_2018]. To avoid this, a linear model including the initial body fat measure as a covariate should be used. The treatment effect is now conditional on the initial measure. Unfortunately, it is effectively impossible to mentally reconstruct a conditional effect like this from any plot of the raw (unconditional) means, regardless if using a bar plot, or a dot plot, or a box plot with superimposed means.
 
 By combining a box/dot plot of the raw data and a forest plot of the modeled effect (figure \@ref(fig:mouseHarrellPlot), a Harrell plot shows both the raw data and distribution summary and a direct visualization of the estimated effect and uncertainty. The mouse data are particularly striking to demonstrate this because of the big difference between the direct inference from the upper panel and the indirect inference using the unconditional means in the bottom panel. 
 
-\newpage
-# References
+# Acknowledgments {-}
+
+# References {-}

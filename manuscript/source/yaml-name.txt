@@ -1,8 +1,10 @@
+# for BiocStyle
   - name: Jeffrey A. Walker
     affiliation:
     - walker@maine.edu
     - Department of Biological Sciences, University of Southern Maine, 70 Falmouth Street, Portland, ME 04103
-    
+
+# for peerj pdf   
   - name: Jeffrey A. Walker
     affiliation: 1
     corresponding: true
