@@ -23,7 +23,7 @@ The Harrell plot addresses all three recommended practices by combining into a s
 
 The raw data are shown in the lower part of the plot using jittered dots, clustered by group. The distribution of data in each group is also shown in the lower part of the plot using a box plot. The precise tool to show the data and distributions is flexible but jittered dots and box plot reflect the best practice for much of experimental biology. While some advocate the use of an error bar, the box plot is more informative than an interval based on the sample standard deviation (including the sample confidence interval). And, an interval based on the standard error of the mean (including a 95% confidence interval of the mean) is typically not the uncertainty that we want to communicate.
 
-[A slightly longer working paper on why Harrell plots is here](https://www.middleprofessor.com/files/quasipubs/harrell_plot_intro.html)
+[A slightly longer working paper on why Harrell plot? is here](https://www.middleprofessor.com/files/quasipubs/harrell_plot_intro.html)
 
 # Using the HarrellPlot App
 ## Data tab -- Importing data
