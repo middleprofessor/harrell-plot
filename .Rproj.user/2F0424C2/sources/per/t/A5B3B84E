@@ -5,15 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "1967751996",
+    "hash" : "135757606",
     "id" : "A5B3B84E",
-    "lastKnownWriteTime" : 1522166056,
-    "last_content_update" : 1522166056898,
+    "lastKnownWriteTime" : 1522588362,
+    "last_content_update" : 1522588362,
     "path" : "~/Google Drive/Research/Projects/HarrellPlot project folder/HarrellPlot/manuscript/source/harrell_plot_intro.Rmd",
     "project_path" : "manuscript/source/harrell_plot_intro.Rmd",
     "properties" : {
-        "cursorPosition" : "21,0",
-        "scrollLine" : "0"
+        "cursorPosition" : "655,0",
+        "scrollLine" : "654"
     },
     "relative_order" : 1,
     "source_on_save" : false,

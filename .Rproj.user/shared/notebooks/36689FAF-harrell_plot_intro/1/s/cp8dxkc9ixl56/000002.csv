@@ -1,9 +1,0 @@
-"0","path <- 'manuscript/output/' # for console
-fout <- paste(path, 'moss_Hplot.pdf', sep='') # for knit
-pwidth <- 8
-pheight <- 6
-pdf(fout, width=pwidth, height=pheight, onefile = TRUE)
-"
-"2","Error in pdf(fout, width = pwidth, height = pheight, onefile = TRUE) : 
-  cannot open file 'manuscript/output/moss_Hplot.pdf'
-"

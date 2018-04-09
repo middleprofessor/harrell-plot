@@ -183,4 +183,118 @@ Total 195 (delta 39), reused 0 (delta 0)
 remote: Resolving deltas:   0% (0/39)   [Kremote: Resolving deltas:  10% (4/39)   [Kremote: Resolving deltas:  12% (5/39)   [Kremote: Resolving deltas:  15% (6/39)   [Kremote: Resolving deltas:  17% (7/39)   [Kremote: Resolving deltas:  20% (8/39)   [Kremote: Resolving deltas:  25% (10/39)   [Kremote: Resolving deltas:  28% (11/39)   [Kremote: Resolving deltas:  35% (14/39)   [Kremote: Resolving deltas:  38% (15/39)   [Kremote: Resolving deltas:  41% (16/39)   [Kremote: Resolving deltas:  43% (17/39)   [Kremote: Resolving deltas:  79% (31/39)   [Kremote: Resolving deltas:  94% (37/39)   [Kremote: Resolving deltas: 100% (39/39)   [Kremote: Resolving deltas: 100% (39/39), done.[K
 To github.com:middleprofessor/harrell-plot.git
    944486f..462fa49  master -> master
+[KJeff-Walkers-imac:HarrellPlot walker$ git add . # indexes all files that wil be added to the loca l repo
+]0;~/Google Drive/Research/Projects/HarrellPlot project folder/HarrellPlotJeff-Walkers-imac:HarrellPlot walker$ git commit -m "update shiny" # adds all files to the local  repo, with a commit message
+[master c280d22] update shiny
+ 125 files changed, 6288 insertions(+), 3138 deletions(-)
+ rewrite .Rhistory (65%)
+ rewrite .Rproj.user/3844950F/console06/INDEX001 (88%)
+ rewrite .Rproj.user/3844950F/rmd-outputs (99%)
+ delete mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/488F72C4
+ delete mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/488F72C4-contents
+ delete mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/57E9A749
+ delete mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/720FB39C
+ delete mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/F821E130
+ delete mode 100644 .Rproj.user/3844950F/sources/s-49A6E45B/F821E130-contents
+ create mode 100644 .gitignore
+ create mode 100644 README.Rmd
+ rename {manuscript/data => data}/.DS_Store (100%)
+ rename {manuscript/data => data}/fly_burst.txt (100%)
+ rename {manuscript/data => data}/moss.txt (100%)
+ rename {manuscript/data => data}/moss2.txt (100%)
+ rename {manuscript/data => data}/zebra_sprint.txt (100%)
+ rename {manuscript/data => data}/zebra_sprint_wide.txt (100%)
+ delete mode 100644 manuscript/data/Appendix 1 radii in normal orb webs.xlsx
+ delete mode 100644 manuscript/data/Appendix 2 frames in normal orb webs.xlsx
+ delete mode 100644 manuscript/data/Appendix 3 radii in resting webs.xlsx
+ delete mode 100644 manuscript/data/Appendix 4 frames in resting webs.xlsx
+ delete mode 100644 manuscript/data/Appendix 5 radii in cocoon webs.xlsx
+ delete mode 100644 manuscript/data/Appendix 6 frames in cocoon webs.xlsx
+ delete mode 100644 manuscript/data/CTmax_2d_8_19,23.csv
+ delete mode 100644 manuscript/data/CTmin_2d_8_19,23.csv
+ delete mode 100644 manuscript/data/bees.txt
+ delete mode 100644 manuscript/data/spider.txt
+ delete mode 100644 manuscript/data/spider2.txt
+ create mode 100644 manuscript/figs/HarrellPlot.pdf
+ create mode 100644 manuscript/figs/harrellplot.intaglio/1.pdf
+ create mode 100644 manuscript/figs/harrellplot.intaglio/Drawing
+ create mode 100644 manuscript/figs/harrellplot.intaglio/Export.svg
+ create mode 100644 manuscript/output/confidence.pdf
+ create mode 100644 manuscript/output/flyBar.pdf
+ rewrite manuscript/output/fly_Hplot.pdf (64%)
+ create mode 100644 manuscript/output/mouseBarPlot.pdf
+ create mode 100644 manuscript/output/mouseHarrellPlot.pdf
+ rename .Rproj.user/3844950F/sources/s-49A6E45B/57E9A749-contents => manuscript/source/harrell_plot_intro copy.Rmd (94%)
+ create mode 100644 manuscript/source/harrell_plot_intro.aux
+ rename .Rproj.user/3844950F/sources/s-49A6E45B/lock_file => manuscript/source/harrell_plot_intro.bbl (100%)
+ create mode 100644 manuscript/source/harrell_plot_intro.blg
+ create mode 100644 manuscript/source/harrell_plot_intro.html
+ create mode 100644 manuscript/source/harrell_plot_intro.out
+ rewrite manuscript/source/harrell_plot_intro.pdf (65%)
+ create mode 100644 manuscript/source/harrell_plot_intro.synctex.gz
+ create mode 100644 manuscript/source/harrell_plot_intro_copy.html
+ create mode 100644 manuscript/source/harrell_plot_intro_copy.pdf
+ create mode 100644 manuscript/source/minimal example of bibliography issue/biblio.txt
+ create mode 100644 manuscript/source/minimal example of bibliography issue/throw away.Rmd
+ create mode 100644 manuscript/source/minimal example of bibliography issue/throw away.txt
+ create mode 100644 manuscript/source/minimal example of bibliography issue/throw_away.html
+ create mode 100644 manuscript/source/minimal example of bibliography issue/throw_away.pdf
+ create mode 100644 manuscript/source/svm-latex-ms.tex
+ create mode 100644 manuscript/test/.DS_Store
+ delete mode 100644 manuscript/test/connecting_IDs.R
+ delete mode 100644 manuscript/test/patchwork_play.R
+ delete mode 100644 manuscript/test/test_alternative_thc_plot.R
+ create mode 100644 package/.DS_Store
+ create mode 100644 package/HarrellPlot/.DS_Store
+ create mode 100644 package/HarrellPlot/DESCRIPTION
+ create mode 100644 package/HarrellPlot/NAMESPACE
+ create mode 100644 package/HarrellPlot/R/.DS_Store
+ create mode 100644 package/HarrellPlot/R/HarrellPlot.R
+ create mode 100644 package/HarrellPlot/R/fit_model.R
+ create mode 100644 package/HarrellPlot/R/make_formula_str.R
+ create mode 100644 package/HarrellPlot/data/.DS_Store
+ create mode 100644 package/HarrellPlot/data/fly.RData
+ create mode 100644 package/HarrellPlot/man/.Rapp.history
+ create mode 100644 package/HarrellPlot/man/HarrellPlot.Rd
+ create mode 100644 package/HarrellPlot/man/fit_model.Rd
+ create mode 100644 readme/.DS_Store
+ create mode 100644 readme/images/fly_boxplot.pdf
+ create mode 100644 readme/images/fly_forest.pdf
+ create mode 100644 readme/images/fly_harrell.pdf
+ create mode 100644 readme/images/harrellplot.png
+ create mode 100644 shiny/.DS_Store
+ create mode 100644 shiny/HarrellPlot/.DS_Store
+ create mode 100644 shiny/HarrellPlot/HarrellPlot.R
+ create mode 100644 shiny/HarrellPlot/README.Rmd
+ create mode 100644 shiny/HarrellPlot/fit_model.R
+ create mode 100644 shiny/HarrellPlot/harrellplot.png
+ delete mode 100644 shiny/HarrellPlot/import_directions.Rmd
+ delete mode 100644 shiny/HarrellPlot/import_directions.html
+ create mode 100644 shiny/HarrellPlot/make_formula_str.R
+ delete mode 100644 shiny/HarrellPlot/what_this_app_does.png
+ create mode 100644 shiny/archive versions/.DS_Store
+ rename .Rproj.user/3844950F/sources/s-49A6E45B/720FB39C-contents => shiny/archive versions/app.R (96%)
+ create mode 100644 source/make_data.R
+ rename {manuscript/test => source}/test_data.R (100%)
+ create mode 100644 source/update_script.R
+ delete mode 100644 test/Hdotplot.6x7.new.pdf
+ delete mode 100644 test/Hdotplot.6x7.pdf
+ delete mode 100644 test/Hdotplot.pdf
+ delete mode 100644 test/Hdotplot7x7.pdf
+ delete mode 100644 test/contrasts.RDS
+ delete mode 100644 test/fly_burst2.txt
+ delete mode 100644 test/gg_contrasts.RDS
+ delete mode 100644 test/plot.rds
+ delete mode 100644 test/test
+ delete mode 100644 test/test.Rdata
+ delete mode 100644 test/treatments.RDS
+]0;~/Google Drive/Research/Projects/HarrellPlot project folder/HarrellPlotJeff-Walkers-imac:HarrellPlot walker$ git push origin master # we push the changes from the local  git repo to 
+Counting objects: 102, done.
+Delta compression using up to 4 threads.
+Compressing objects:   1% (1/97)   Compressing objects:   2% (2/97)   Compressing objects:   3% (3/97)   Compressing objects:   4% (4/97)   Compressing objects:   5% (5/97)   Compressing objects:   6% (6/97)   Compressing objects:   7% (7/97)   Compressing objects:   8% (8/97)   Compressing objects:   9% (9/97)   Compressing objects:  10% (10/97)   Compressing objects:  11% (11/97)   Compressing objects:  12% (12/97)   Compressing objects:  13% (13/97)   Compressing objects:  14% (14/97)   Compressing objects:  15% (15/97)   Compressing objects:  16% (16/97)   Compressing objects:  17% (17/97)   Compressing objects:  18% (18/97)   Compressing objects:  19% (19/97)   Compressing objects:  20% (20/97)   Compressing objects:  21% (21/97)   Compressing objects:  22% (22/97)   Compressing objects:  23% (23/97)   Compressing objects:  24% (24/97)   Compressing objects:  25% (25/97)   Compressing objects:  26% (26/97)   Compressing objects:  27% (27/97)   Compressing objects:  28% (28/97)   Compressing objects:  29% (29/97)   Compressing objects:  30% (30/97)   Compressing objects:  31% (31/97)   Compressing objects:  32% (32/97)   Compressing objects:  34% (33/97)   Compressing objects:  35% (34/97)   Compressing objects:  36% (35/97)   Compressing objects:  37% (36/97)   Compressing objects:  38% (37/97)   Compressing objects:  39% (38/97)   Compressing objects:  40% (39/97)   Compressing objects:  41% (40/97)   Compressing objects:  42% (41/97)   Compressing objects:  43% (42/97)   Compressing objects:  44% (43/97)   Compressing objects:  45% (44/97)   Compressing objects:  46% (45/97)   Compressing objects:  47% (46/97)   Compressing objects:  48% (47/97)   Compressing objects:  49% (48/97)   Compressing objects:  50% (49/97)   Compressing objects:  51% (50/97)   Compressing objects:  52% (51/97)   Compressing objects:  53% (52/97)   Compressing objects:  54% (53/97)   Compressing objects:  55% (54/97)   Compressing objects:  56% (55/97)   Compressing objects:  57% (56/97)   Compressing objects:  58% (57/97)   Compressing objects:  59% (58/97)   Compressing objects:  60% (59/97)   Compressing objects:  61% (60/97)   Compressing objects:  62% (61/97)   Compressing objects:  63% (62/97)   Compressing objects:  64% (63/97)   Compressing objects:  65% (64/97)   Compressing objects:  67% (65/97)   Compressing objects:  68% (66/97)   Compressing objects:  69% (67/97)   Compressing objects:  70% (68/97)   Compressing objects:  71% (69/97)   Compressing objects:  72% (70/97)   Compressing objects:  73% (71/97)   Compressing objects:  74% (72/97)   Compressing objects:  75% (73/97)   Compressing objects:  76% (74/97)   Compressing objects:  77% (75/97)   Compressing objects:  78% (76/97)   Compressing objects:  79% (77/97)   Compressing objects:  80% (78/97)   Compressing objects:  81% (79/97)   Compressing objects:  82% (80/97)   Compressing objects:  83% (81/97)   Compressing objects:  84% (82/97)   Compressing objects:  85% (83/97)   Compressing objects:  86% (84/97)   Compressing objects:  87% (85/97)   Compressing objects:  88% (86/97)   Compressing objects:  89% (87/97)   Compressing objects:  90% (88/97)   Compressing objects:  91% (89/97)   Compressing objects:  92% (90/97)   Compressing objects:  93% (91/97)   Compressing objects:  94% (92/97)   Compressing objects:  95% (93/97)   Compressing objects:  96% (94/97)   Compressing objects:  97% (95/97)   Compressing objects:  98% (96/97)   Compressing objects: 100% (97/97)   Compressing objects: 100% (97/97), done.
+Writing objects:   0% (1/102)   Writing objects:   1% (2/102)   Writing objects:   4% (5/102)   Writing objects:   5% (6/102)   Writing objects:   6% (7/102)   Writing objects:   7% (8/102)   Writing objects:   8% (9/102)   Writing objects:   9% (10/102)   Writing objects:  10% (11/102)   Writing objects:  11% (12/102)   Writing objects:  12% (13/102)   Writing objects:  13% (14/102)   Writing objects:  14% (15/102)   Writing objects:  15% (16/102)   Writing objects:  16% (17/102)   Writing objects:  17% (18/102)   Writing objects:  18% (19/102)   Writing objects:  19% (20/102)   Writing objects:  20% (21/102)   Writing objects:  21% (22/102)   Writing objects:  22% (23/102)   Writing objects:  23% (24/102)   Writing objects:  24% (25/102)   Writing objects:  25% (26/102)   Writing objects:  26% (27/102)   Writing objects:  27% (28/102)   Writing objects:  28% (29/102)   Writing objects:  29% (30/102)   Writing objects:  30% (31/102)   Writing objects:  31% (32/102)   Writing objects:  32% (33/102)   Writing objects:  33% (34/102)   Writing objects:  35% (36/102)   Writing objects:  36% (37/102)   Writing objects:  37% (38/102)   Writing objects:  38% (39/102)   Writing objects:  39% (40/102)   Writing objects:  41% (42/102)   Writing objects:  43% (44/102)   Writing objects:  44% (45/102)   Writing objects:  45% (46/102)   Writing objects:  46% (47/102)   Writing objects:  47% (48/102)   Writing objects:  48% (49/102)   Writing objects:  49% (50/102)   Writing objects:  50% (51/102)   Writing objects:  51% (53/102)   Writing objects:  53% (55/102)   Writing objects:  54% (56/102)   Writing objects:  55% (57/102)   Writing objects:  56% (58/102)   Writing objects:  57% (59/102)   Writing objects:  58% (60/102)   Writing objects:  59% (61/102)   Writing objects:  60% (62/102)   Writing objects:  61% (63/102)   Writing objects:  61% (63/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  62% (64/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  63% (65/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  64% (66/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  65% (67/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  66% (68/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  67% (69/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  68% (70/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  69% (71/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  70% (72/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  71% (73/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  72% (74/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  73% (75/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  74% (76/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  75% (77/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  76% (78/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  77% (79/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  78% (80/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  79% (81/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  80% (82/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  81% (83/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  82% (84/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  83% (85/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  84% (86/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  85% (87/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  86% (88/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  87% (89/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  88% (90/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  89% (91/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  90% (92/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  91% (93/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  92% (94/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  93% (95/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  94% (96/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  95% (97/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  96% (98/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  97% (99/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  98% (100/102), 1.30 MiB | 1.26 MiB/s   Writing objects:  99% (101/102), 1.30 MiB | 1.26 MiB/s   Writing objects: 100% (102/102), 1.30 MiB | 1.26 MiB/s   Writing objects: 100% (102/102), 1.48 MiB | 1.22 MiB/s, done.
+Total 102 (delta 37), reused 0 (delta 0)
+remote: Resolving deltas:   0% (0/37)   [Kremote: Resolving deltas:   2% (1/37)   [Kremote: Resolving deltas:  10% (4/37)   [Kremote: Resolving deltas:  13% (5/37)   [Kremote: Resolving deltas:  16% (6/37)   [Kremote: Resolving deltas:  21% (8/37)   [Kremote: Resolving deltas:  24% (9/37)   [Kremote: Resolving deltas:  37% (14/37)   [Kremote: Resolving deltas:  40% (15/37)   [Kremote: Resolving deltas:  43% (16/37)   [Kremote: Resolving deltas:  45% (17/37)   [Kremote: Resolving deltas:  48% (18/37)   [Kremote: Resolving deltas:  51% (19/37)   [Kremote: Resolving deltas:  54% (20/37)   [Kremote: Resolving deltas:  56% (21/37)   [Kremote: Resolving deltas:  62% (23/37)   [Kremote: Resolving deltas:  70% (26/37)   [Kremote: Resolving deltas:  75% (28/37)   [Kremote: Resolving deltas:  78% (29/37)   [Kremote: Resolving deltas:  81% (30/37)   [Kremote: Resolving deltas:  83% (31/37)   [Kremote: Resolving deltas:  86% (32/37)   [Kremote: Resolving deltas:  94% (35/37)   [Kremote: Resolving deltas:  97% (36/37)   [Kremote: Resolving deltas: 100% (37/37)   [Kremote: Resolving deltas: 100% (37/37), completed with 18 local objects.[K
+To github.com:middleprofessor/harrell-plot.git
+   462fa49..c280d22  master -> master
 [KJeff-Walkers-imac:HarrellPlot walker$ 
