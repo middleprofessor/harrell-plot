@@ -22,19 +22,18 @@ library(cowplot)
 library(broom)
 library(lme4)
 library(lmerTest)
-library(lsmeans)
+library(emmeans)
 library(car)
 library(data.table)
 library(Hmisc) # smean.cl.boot
 library(MCMCpack) # bayes
 library(coda) # bayes
-library(HarrellPlot)
 
 source("HarrellPlot.R", local = TRUE)
 source("fit_model.R", local = TRUE)
 source("make_formula_str.R", local = TRUE)
 
-data("fly")
+# data("fly")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -71,7 +70,7 @@ ui <- fluidPage(
                      selectInput("contrasts.method", h3("Contrasts"), 
                                  choices = list("Coefficients" = 1,
                                                 "vs. Control" = 2,
-                                                "Pairwise" = 3), selected = 2),
+                                                "Pairwise" = 3), selected = 3),
                      uiOutput("interaction.treatment"),
                      uiOutput("interaction.group"),
                      selectInput("contrasts.scaling", h5("Contrast scaling"), 
@@ -199,14 +198,14 @@ ui <- fluidPage(
   #  )
 )
 
-server <- function(input, output, session) {
+server <- function(input, output) {
   
   # read data file
   dataInput <- reactive({
     infile <- input$FileInput # opens file browser
     if(is.null(infile)){
-      df <- fly
-      return(df)
+      # df <- fly
+      # return(df)
     }else{
       df <- fread(infile$datapath, stringsAsFactors = TRUE)
       return(df)
@@ -244,7 +243,7 @@ server <- function(input, output, session) {
     df <-dataInput()
     if (is.null(df)) return(NULL)
     if (input$group=='None') return(NULL)
-    checkboxInput("interaction", "Add interaction", FALSE)
+    checkboxInput("interaction", "Add interaction", TRUE)
   })
   
   output$interaction.treatment <- renderUI({
@@ -258,7 +257,7 @@ server <- function(input, output, session) {
     df <-dataInput()
     if (is.null(df)) return(NULL)
     if (input$group=='None') return(NULL)
-    checkboxInput("interaction.group", "within Treatment 2", FALSE)
+    checkboxInput("interaction.group", "within Treatment 2", TRUE)
   })
   
   # populate random intercept input
@@ -313,6 +312,7 @@ server <- function(input, output, session) {
     return(group_names)
   }
   
+
   plotInput <- reactive({
     df <- dataInput()
     

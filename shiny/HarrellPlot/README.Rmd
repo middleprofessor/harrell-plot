@@ -2,13 +2,12 @@
 title: "README"
 author: "Jeffrey A. Walker"
 date: "3/30/2018"
-output:
-  html_document:
-    toc: true
-    toc_float: true
+output: html_document
 ---
 # What this app does
 ![](harrellplot.png)
+
+[A working paper on why Harrell plot? is here](https://www.middleprofessor.com/files/quasipubs/harrell_plot_intro.html) (control- or right click to open in new tab)
 
 The HarrellPlot app creates alternatives to the ubiquitious bar plot. The alternative is a Harrell Plot, which combines, a forest plot of modeled coefficients or treatment contrasts with confidence intervals, a dot plot of raw data, and a box plot. Or, the output can be limited to the forest plot of treatment effects, or the the box/dot plots, or just the box plot. The output is pretty flexible. What it doesn't output is a bar plot.
 
@@ -22,8 +21,6 @@ Recommended best practices for the reporting of statistical results include 1) s
 The Harrell plot addresses all three recommended practices by combining into a single plot a forest plot of modeled treatment effects and a box plot with superimposed jittered dots to show the distribution of data within groups. The illustrated effects in the forest plot part can be the coefficients of the linear model or contrasts between treatment combinations. If contrasts, these can be comparisons with a reference (such as a control) or pairwise comparisons.
 
 The raw data are shown in the lower part of the plot using jittered dots, clustered by group. The distribution of data in each group is also shown in the lower part of the plot using a box plot. The precise tool to show the data and distributions is flexible but jittered dots and box plot reflect the best practice for much of experimental biology. While some advocate the use of an error bar, the box plot is more informative than an interval based on the sample standard deviation (including the sample confidence interval). And, an interval based on the standard error of the mean (including a 95% confidence interval of the mean) is typically not the uncertainty that we want to communicate.
-
-[A slightly longer working paper on why Harrell plot? is here](https://www.middleprofessor.com/files/quasipubs/harrell_plot_intro.html)
 
 # Using the HarrellPlot App
 ## Data tab -- Importing data

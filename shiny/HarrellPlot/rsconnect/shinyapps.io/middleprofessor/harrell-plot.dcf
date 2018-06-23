@@ -1,0 +1,13 @@
+name: harrell-plot
+title: harrell-plot
+username:
+account: middleprofessor
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 317925
+bundleId: 1309092
+url: https://middleprofessor.shinyapps.io/harrell-plot/
+when: 1523244251.40335
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: fit_model.R|harrellplot.png|HarrellPlot.R|make_formula_str.R|README.html|README.Rmd

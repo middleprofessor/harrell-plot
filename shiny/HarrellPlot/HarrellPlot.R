@@ -1,31 +1,35 @@
-#' Hdotplot
+#' HarrellPlot
 #'
 #' a wrapper to ggplot2 that generates a Harrel (or Horizontal) dot plot, with an upper panel of model contrasts and a lower panel of treatment distributions
 #' @import ggplot2
-#' @import lsmeans
+#' @import cowplot
 #' @import Hmisc
 #' @import broom
-#' @import lsmeans
-#' @import car
 #' @import data.table
 #' @param y contains the name of the column with the response variable
-#' @param x contains the name of the column with the main factor variable
-#' @param g contains the name of the column with the grouping factor variable
+#' @param x contains the name of the column of Treatment 1 -- will be ploted on the X-axis
+#' @param g contains the name of the column of Treatment 2 -- will be the "grouping" variable for the plot
 #' @param data is the data frame or data.table
-#' @param fit.model at present, only "lm" is implemented
+#' @param fit.model at present, only "lm" and 'lmm' (using lme4) are implemented
 #' @param error at present, only "Normal" is implemented
 #' @param add_interaction if TRUE, include interaction effect
+#' @param interaction.group if TRUE, plots effects across levels of Treatment 2
+#' @param interaction.treatment if TRUE, plots effects across levels of Treatment 1
 #' @param mean_intervals.method method for computing confidence intervals of the treatment means. "raw" commputes the intervals based on the treatment SE, "lm" is based on the model SE from the fit model, "boot" computes bootstrap intervals
 #' @param conf.mean is the percentile level for the treatment CIs. Possible values are 0.9, 0.95, and 0.99
-#' @param contrasts.method "coefficients" are the model coefficients. "trt.vs.ctrl1" and "revpairwise" are from the lsmeans package.
+#' @param contrasts.method "coefficients" are the model coefficients. "trt.vs.ctrl1" and "revpairwise" are from the emmeans (formerly lsmeans) package.
+#' @param contrasts.scaling Scaling of the effects (if contrasts). Can be 'raw', 'percent', or 'standardized'
 #' @param conf.contrast is percentile level for the contrast CIs. Possible values are 0.9, 0.95, and 0.99
 #' @param adjust is interval adjustment for contrast CIs, TRUE is default adjustment, which is Tukey for pairwise or modified Dunnets for treatment vs. control
 #' @param display.treatment can be "box", "ci"
 #' @param short if TRUE, treatment levels are shortened using abbreviate()
-#' @param show.dots if TRUE, plot dots
 #' @param show.mean if TRUE, plot mean
+#' @param show.dots if TRUE, plot dots
+#' @param show.zero if TRUE, includes 0.0 on in the forest plot of effects
 #' @param horizontal if TRUE, the plot is flipped into horizontal geometry
 #' @param color_palette can be "ggplot", "Greys", "Blues", "Accent", "Dark2", "Set1", "Set2", "Set3"
+#' @param rel_height Aspect ratio of forest plot vs. box/dot plot components. E.g .66 or 1.5. For default, either do not pass this parameter or us "rel_height=0".
+#' @param y_label user supplied lable for Y axis
 #' @param jtheme can be "gray", "bw", "classic", "minimal"
 #' @export
 HarrellPlot <- function(
@@ -37,15 +41,15 @@ HarrellPlot <- function(
   rintcols=NULL,
   rslopecols=NULL,
   data, # data frame or table
-  fit.model='lm', # lm, glm
+  fit.model='lm', # lm, lmm, glm
   error='Normal', # normal, lognormal, logistic, poisson
-  add_interaction=FALSE,
-  interaction.group=FALSE,
+  add_interaction=TRUE,
+  interaction.group=TRUE,
   interaction.treatment=TRUE,
   mean_intervals.method='raw', # model for CI of mean
   conf.mean=0.95, # confidence level for CI of mean
-  contrasts.method='trt.vs.ctrl1', # which contrasts to show
-  contrasts.scaling='raw',
+  contrasts.method='revpairwise', # which contrasts to show
+  contrasts.scaling='raw', # 'percent', 'standardized'
   conf.contrast=0.95,
   adjust=FALSE,
   show.contrasts=TRUE,
@@ -58,7 +62,7 @@ HarrellPlot <- function(
   horizontal=TRUE,
   color_palette='Greys',
   jtheme='minimal',
-  rel_height=0, # relative height of contrast vs. treatment subplots
+  rel_height=0, # Aspect ratio of forest plot vs. box/dot plot components (0 is default)
   y_label=NULL # user supplied lable for Y axis
 ){
   # subset data
