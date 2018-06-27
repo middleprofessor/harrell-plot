@@ -18,6 +18,7 @@ fit_model <- function(
   rslopecols=NULL,
   dt,
   fit.model='lm', # lm, glm
+  REML=TRUE, # if FALSE then fit by ML
   error='Normal', # normal, lognormal, logistic, poisson
   add_interaction=FALSE,
   interaction.group=FALSE,
@@ -43,16 +44,30 @@ fit_model <- function(
     icols <- NULL
   }
 
+  # make model formula an fit model
   model_formula <- formula(make_formula_str(y, xcols, rintcols, rslopecols, icols, covcols))
-
   if(fit.model=='lm'){
     fit <- lm(model_formula, data=dt)
   }
   if(fit.model=='lmm'){
-    fit <- lmer(model_formula, data=dt)
+    fit <- lmer(model_formula, data=dt, REML=REML)
   }
-  lsm <- emmeans(fit, specs=xcols)
 
+  # estimated marginal means from emmeans package
+  if(contrasts.method=='coefficients'){
+    lsm <- list(emmeans(fit, specs=xcols)) # old lsmeans code
+  }else{
+    if(grouping==FALSE){
+      contrast_formula <- formula(paste(contrasts.method,'~',x))
+    }
+    if(grouping==TRUE){
+      # this gives correct means and SE even if additive model (no interaction)
+      # but will need to recompute contrasts for each factor if no interaction
+      contrast_formula <- formula(paste(contrasts.method,'~',x,'*',g))
+    }
+    lsm <- emmeans(fit, contrast_formula) # new code includes both means and contrasts
+  }
+  
   # save global
   tables <- list(NULL)
   tables$fit <- fit
@@ -60,8 +75,8 @@ fit_model <- function(
   tables$coeffs <- coefficients(summary(fit))
   tables$summary <- glance(fit)
   tables$summary.raw <- summary(fit)
-  tables$means.raw <- lsm
-  # anova tables
+  tables$means.raw <- lsm[[1]]
+  # grudgingly include anova tables
   if(fit.model=='lm'){
     tables$anova.1 <- anova(fit)
     tables$anova.2 <- Anova(fit, type='II')
@@ -87,7 +102,7 @@ fit_model <- function(
 
   # means intervals
   if(mean_intervals.method=='lm'){
-    tables$means <- confint(lsm, level=conf.mean)
+    tables$means <- confint(lsm[[1]], level=conf.mean)
     ci_means <- data.table(tables$means) # mean intervals not adjusted
     ci_means <- ci_means[, .SD, .SDcols=c(xcols,'emmean','lower.CL','upper.CL')]
   }
@@ -148,35 +163,16 @@ fit_model <- function(
     setnames(ci_diffs, old=colnames(ci_diffs), new = c('contrast', 'g', 'estimate', 'Std. Error', 't value', 'Pr(>|t|)', 'lower', 'upper'))
     ci_diffs <- ci_diffs[, .SD, .SDcols=c('contrast','g','estimate','lower','upper')]
     ci_diffs[, contrast:=factor(contrast, levels=x_names)]
+    ci_diffs<-ci_diffs[nrow(ci_diffs):1,] # reorder to match table output
   }
   if(contrasts.method!='coefficients'){
     ci.adjust <- 'none'
     if(adjust==TRUE){
       ci.adjust <- ifelse(contrasts.method=='trt.vs.ctrl1', 'dunnettx','tukey')
     }
-    #fit.emm <- emmeans(fit, pairwise ~ treatment | season)
-    # liberal_p <- FALSE
-    # if(liberal_p==TRUE){
-    #   contrast_formula <- formula(paste(contrasts.method,'~',x,'|',g))
-    #   contrasts_x <- summary(emmeans(fit, contrast_formula),
-    #           adjust=ci.adjust,
-    #           level=conf.contrast,
-    #           infer=c(TRUE,TRUE))[[2]]
-    #   contrast_formula <- formula(paste(contrasts.method,'~',g,'|',x))
-    #   contrasts_g <- summary(emmeans(fit, contrast_formula),
-    #                          adjust=ci.adjust,
-    #                          level=conf.contrast,
-    #                          infer=c(TRUE,TRUE))[[2]]
-    #   contrasts_x <- data.table(contrasts_x[1:nrow(contrasts_x), ])
-    #   setnames(contrasts_x, old=colnames(contrasts_x)[2], new='group')
-    #   contrasts_g <- data.table(contrasts_g[1:nrow(contrasts_g), ])
-    #   setnames(contrasts_g, old=colnames(contrasts_g)[2], new='group')
-    #   ci_liberal <- data.table(rbind(contrasts_x, contrasts_g))
-    #   ci_liberal[,contrast_label:=paste(group,': ', contrast, sep='')]
-    # }
     if(grouping==FALSE){
-      contrast_formula <- formula(paste(contrasts.method,'~',x))
-      ci_diffs <- summary(emmeans(fit, contrast_formula),
+      #contrast_formula <- formula(paste(contrasts.method,'~',x))
+      ci_diffs <- summary(lsm,
                           adjust=ci.adjust,
                           level=conf.contrast,
                           infer=c(TRUE,TRUE))[[2]]
@@ -186,16 +182,16 @@ fit_model <- function(
     }
     if(grouping==TRUE & add_interaction==TRUE){
       #ci_diffs <- summary(contrast(lsm, method=contrasts.method), adjust=ci.adjust, level=conf.contrast, infer=c(TRUE,TRUE)) # from the old lmmeans package - it should work with emmeans but doesn't
-        contrast_formula <- formula(paste(contrasts.method,'~',x,'*',g))
-        ci_diffs <- summary(emmeans(fit, contrast_formula),
+        #contrast_formula <- formula(paste(contrasts.method,'~',x,'*',g))
+        ci_diffs <- summary(lsm,
                 adjust=ci.adjust,
                 level=conf.contrast,
                 infer=c(TRUE,TRUE))[[2]]
       tables$contrasts.raw <- ci_diffs
-      contrast_label <- rep("none", nrow(ci_diffs))
-      if(grouping==TRUE & contrasts.method=='revpairwise'){ # subset into pairwise within each group
+      if(contrasts.method=='revpairwise'){ # subset into pairwise within each group
         # separate contrast "a,b - c,d" into "a,b" and "c,d"
         # fread(paste(as.character(ci_diffs$contras), collapse='\n'), sep='-')
+        contrast_label <- rep("none", nrow(ci_diffs))
         inc <- NULL
         split1 <- data.frame(t(do.call("cbind", strsplit(as.character(ci_diffs$contrast)," - "))))
         # separate each side of split1, e.g. "a,b" into "a" and "b"
@@ -204,10 +200,6 @@ fit_model <- function(
         split2b <- data.frame(t(do.call("cbind", strsplit(as.character(split1$X2),","))))
         colnames(split2b) <- c('x2','g2')
         splits <- data.table(split2a, split2b)
-        # splits[, x1:=as.character(x1)]
-        # splits[, x2:=as.character(x2)]
-        # splits[, g1:=as.character(g1)]
-        # splits[, g2:=as.character(g2)]
         if(interaction.group==TRUE){
           inc <- c(inc, which(splits[,g1]==splits[,g2]))
           contrast_label[inc] <- paste((splits[inc,g1]),': ', splits[inc,x1], " - ", splits[inc,x2], sep='')
@@ -225,21 +217,6 @@ fit_model <- function(
       ci_diffs <- data.table(ci_diffs, g='dummy')
     }
     if(grouping==TRUE & add_interaction==FALSE){
-      # pre-emmeans code
-      # if(contrasts.method=='revpairwise'){
-      #   p_levels <- n_levels*(n_levels-1)/2
-      #   p_groups <- n_groups*(n_groups-1)/2
-      # }else{
-      #   p_levels <- n_levels-1
-      #   p_groups <- n_groups-1
-      # }
-      # diffs.x <- summary(contrast(lsm, method=contrasts.method, by=g), adjust=ci.adjust, level=conf.contrast, infer=c(TRUE,TRUE))
-      # ci_diffs.x <- data.table(diffs.x)[1:p_levels]
-      # setnames(ci_diffs.x, old=c(g), new='by')
-      # diffs.g <- summary(contrast(lsm, method=contrasts.method, by=x), adjust=ci.adjust, level=conf.contrast, infer=c(TRUE,TRUE))
-      # ci_diffs.g <- data.table(diffs.g)[1:p_groups]
-      # setnames(ci_diffs.g, old=c(x), new='by')
-      
       contrast_formula <- formula(paste(contrasts.method,'~',x,'|',g))
       contrasts_x <- summary(emmeans(fit, contrast_formula),
                              adjust=ci.adjust,
@@ -266,7 +243,7 @@ fit_model <- function(
       if(interaction.group==TRUE){ci_diffs <- rbind(ci_diffs, contrasts_g)}
       tables$contrasts <- copy(ci_diffs)
       setnames(ci_diffs, old=c('group'), new='g')
-      ci_diffs[, contrast:=paste(g,': ', contrast, sep='')]
+      # ci_diffs[, contrast:=paste(g,': ', contrast, sep='')]
       # ci_diffs.x[, g:='x']
       # ci_diffs.g[, g:='g']
     }

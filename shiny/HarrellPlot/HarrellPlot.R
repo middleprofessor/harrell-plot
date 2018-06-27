@@ -42,6 +42,7 @@ HarrellPlot <- function(
   rslopecols=NULL,
   data, # data frame or table
   fit.model='lm', # lm, lmm, glm
+  REML=TRUE, # for lmm models, if false then fit with ML
   error='Normal', # normal, lognormal, logistic, poisson
   add_interaction=TRUE,
   interaction.group=TRUE,
@@ -95,7 +96,7 @@ HarrellPlot <- function(
   g_order <- dt[,.(i=min(.I)),by=get(g)][, get]
   dt[, (g):=factor(get(g), g_order)]
 
-  res <- fit_model(x, y, g, covcols, rintcols, rslopecols, dt, fit.model, error, add_interaction, interaction.group, interaction.treatment, mean_intervals.method, conf.mean, contrasts.method, contrasts.scaling, conf.contrast, adjust)
+  res <- fit_model(x, y, g, covcols, rintcols, rslopecols, dt, fit.model, REML, error, add_interaction, interaction.group, interaction.treatment, mean_intervals.method, conf.mean, contrasts.method, contrasts.scaling, conf.contrast, adjust)
 
   ci_means <- res$ci_means
   ci_diffs <- res$ci_diffs

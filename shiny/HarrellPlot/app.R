@@ -13,6 +13,7 @@
 # working14 - added covariates, updated plotInput to a reactive so that model is only computed once, unless a parameter has changed
 # working15 - added tools for looking at individual effects (lines in dot plot and individual effects in contrasts plot)
 # working16 - re-arranged menu items. rewrote readme.
+# working17 - replaced lsmeans with emmeans. Modified labels for contrasts.
 
 library(shiny)
 library(DT) # for tables
@@ -52,6 +53,8 @@ ui <- fluidPage(
                      # model options
                      selectInput("model", h3("Model"), choices=c('lm','lmm'), selected = 1),
                      # reactive Input for treatment
+                     uiOutput("reml"),
+                     # reactive Input for grouping
                      uiOutput("response"),
                      # reactive Input for grouping
                      uiOutput("treatment"),
@@ -287,6 +290,13 @@ server <- function(input, output) {
     selectInput("random_slope", "Random slope",items, multiple=TRUE)
   })
   
+  output$reml <- renderUI({
+    df <-dataInput()
+    if (is.null(df)) return(NULL)
+    if (input$model=='lm') return(NULL)
+    checkboxInput("reml", "REML (otherwise, ML)", TRUE)
+  })
+  
   # render data_table
   output$data_table = DT::renderDataTable(dataInput())
 
@@ -315,9 +325,20 @@ server <- function(input, output) {
 
   plotInput <- reactive({
     df <- dataInput()
+    # exit if there are not correct model inputs
+    if(is.null(input$response)==TRUE | is.null(input$treatment)==TRUE){
+      return(NULL)
+    }
+    if(input$model=='lmm' & is.null(input$random_intercept)==TRUE){
+      return(NULL)
+    }
+    
     
     # model
     fit.model <- input$model
+    if(fit.model=='lmm'){
+      REML <- input$reml
+    }
     #    error <- input$error
     error <- 'Normal'
     x <- input$treatment
@@ -385,7 +406,7 @@ server <- function(input, output) {
     # rel_height_input <- input$relheight
     # rel_height <- rel_height_array[which(rel_height_ch_array==rel_height_input)]
     
-    res <- HarrellPlot(x, y, g, covcols, rintcols, rslopecols, df, fit.model, error, add_interaction, interaction.group, interaction.treatment, mean_intervals.method, conf.mean, contrasts.method, contrasts.scaling, conf.contrast, adjust, show.contrasts, show.treatments, display.treatment, short, show.mean, show.dots, zero, horizontal, color_palette, jtheme, rel_height)
+    res <- HarrellPlot(x, y, g, covcols, rintcols, rslopecols, df, fit.model, REML, error, add_interaction, interaction.group, interaction.treatment, mean_intervals.method, conf.mean, contrasts.method, contrasts.scaling, conf.contrast, adjust, show.contrasts, show.treatments, display.treatment, short, show.mean, show.dots, zero, horizontal, color_palette, jtheme, rel_height)
     
     res
   })
