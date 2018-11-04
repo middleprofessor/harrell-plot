@@ -1,0 +1,12 @@
+name: HarrellPlot
+title: HarrellPlot
+username:
+account: middleprofessor
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 301708
+bundleId: 1668410
+url: https://middleprofessor.shinyapps.io/HarrellPlot/
+when: 1540765532.71326
+asMultiple: FALSE
+asStatic: FALSE

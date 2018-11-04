@@ -5,7 +5,7 @@ library(cowplot)
 library(broom)
 library(lme4)
 library(lmerTest)
-library(lsmeans)
+library(emmeans)
 library(car)
 library(data.table)
 library(Hmisc) # smean.cl.boot
@@ -33,11 +33,24 @@ horizontal=TRUE
 color_palette='Greys'
 jtheme='minimal'
 
+frb <- fread('data/FRB5.txt', stringsAsFactors = TRUE)
+data <- copy(frb)[depth==5]
+x <- 'treatment'
+y <- 'FRB'
+g <- 'season'
+rintcols <- c('plot', 'month')
+rslopecols <- NULL
+covcols <- NULL
+add_interaction <- TRUE
+REML <- TRUE
+fit.model <- 'lmm'
+
+
 moss <- fread('data/moss2.txt', stringsAsFactors = TRUE)
 data <- copy(moss)
 x <- 'MFW'
 y <- 'moss_biomass_gain'
-g <- 'None'
+g <- 'Precipitation'
 rintcols <- NULL
 rslopecols <- NULL
 covcols <- NULL

@@ -1,0 +1,70 @@
+---
+title: "test shiny harrellplot"
+output: html_notebook
+---
+
+```{r setup}
+library(ggplot2)
+library(data.table)
+
+data_path <- "../data"
+source("../HarrellPlot/harrellplot.R")
+source("../HarrellPlot/fit_model.R")
+source("../HarrellPlot/make_formula_str.R")
+```
+
+```{r setup2}
+  covcols=NULL
+  rintcols=NULL
+  rslopecols=NULL
+fit.model='lm'
+error='Normal'
+add_interaction=TRUE
+interaction.group = TRUE
+interaction.treatment=TRUE
+mean_intervals.method='lm'
+conf.mean=0.95
+contrasts.method='revpairwise'
+contrasts.scaling='percent'
+conf.contrast=0.95
+adjust=FALSE
+show.contrasts=TRUE
+show.treatments=TRUE
+display.treatment='box'
+short=FALSE
+show.mean=TRUE
+show.dots=TRUE
+horizontal=TRUE
+color_palette='Greys'
+jtheme='minimal'
+
+```
+
+```{r fly}
+fn <- "fly_burst.txt"
+file_path <- paste(data_path, fn, sep="/")
+filename <- 'fly_burst.txt'
+file_path <- paste(data_path, filename, sep='/') # for knit
+fly <- fread(file_path, stringsAsFactors = TRUE)
+fly[, Treatment:=factor(Treatment, c('CN', 'AA'))]
+
+x <- "Treatment"
+y <- "Vburst"
+g <- "Sex"
+
+data <- fly
+
+fit <- lm(Vburst ~ Treatment*Sex, fly)
+emm <- emmeans(fit, specs=c(x,g)) 
+
+# contrasts across levels B within level A
+contrast(emm, method="revpairwise")
+contrast(emm, method="revpairwise", simple = "each", combine=TRUE)
+contrast(emm, method="revpairwise", simple = c("Treatment", "Sex"))
+contrast(emm, method="revpairwise", simple = list("Treatment", "Sex"))
+
+emm <- emmeans(fit, specs=c(x, NULL)) 
+contrast(emm, method="revpairwise", simple = "each", combine=TRUE)
+
+```
+
