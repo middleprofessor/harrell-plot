@@ -6,6 +6,7 @@ output: html_notebook
 ```{r setup}
 library(ggplot2)
 library(data.table)
+library(emmeans)
 
 data_path <- "../data"
 source("../HarrellPlot/harrellplot.R")
@@ -40,6 +41,19 @@ jtheme='minimal'
 
 ```
 
+```{r vole}
+filename <- 'vole.txt'
+file_path <- paste(data_path, filename, sep='/') # for knit
+vole <- fread(file_path, stringsAsFactors = TRUE)
+
+x <- "treatment"
+y <- "lifespan"
+g <- "dummy_g"
+data <- vole
+dt <- vole
+
+```
+
 ```{r fly}
 fn <- "fly_burst.txt"
 file_path <- paste(data_path, fn, sep="/")
@@ -53,6 +67,7 @@ y <- "Vburst"
 g <- "Sex"
 
 data <- fly
+dt <- fly
 
 fit <- lm(Vburst ~ Treatment*Sex, fly)
 emm <- emmeans(fit, specs=c(x,g)) 
