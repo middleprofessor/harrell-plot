@@ -191,12 +191,19 @@ book: http://r4ds.had.co.nz/</code></pre>
 <!-- rnb-output-begin eyJkYXRhIjoiZGF0YS50YWJsZSAxLjExLjggIExhdGVzdCBuZXdzOiByLWRhdGF0YWJsZS5jb21cbiJ9 -->
 <pre><code>data.table 1.11.8  Latest news: r-datatable.com</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YV9wYXRoIDwtIFwiLi4vZGF0YVwiXG5zb3VyY2UoXCIuLi9IYXJyZWxsUGxvdC9oYXJyZWxscGxvdC5SXCIpXG5zb3VyY2UoXCIuLi9IYXJyZWxsUGxvdC9maXRfbW9kZWwuUlwiKVxuc291cmNlKFwiLi4vSGFycmVsbFBsb3QvbWFrZV9mb3JtdWxhX3N0ci5SXCIpXG5gYGAifQ== -->
-<pre class="r"><code>data_path &lt;- &quot;../data&quot;
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShlbW1lYW5zKVxuZGF0YV9wYXRoIDwtIFwiLi4vZGF0YVwiXG5zb3VyY2UoXCIuLi9IYXJyZWxsUGxvdC9oYXJyZWxscGxvdC5SXCIpXG5zb3VyY2UoXCIuLi9IYXJyZWxsUGxvdC9maXRfbW9kZWwuUlwiKVxuYGBgIn0= -->
+<pre class="r"><code>library(emmeans)
+data_path &lt;- &quot;../data&quot;
 source(&quot;../HarrellPlot/harrellplot.R&quot;)
-source(&quot;../HarrellPlot/fit_model.R&quot;)
-source(&quot;../HarrellPlot/make_formula_str.R&quot;)</code></pre>
+source(&quot;../HarrellPlot/fit_model.R&quot;)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gc291cmNlKFwiLi4vSGFycmVsbFBsb3QvZml0X21vZGVsLlJcIikgOiBcbiAgLi4vSGFycmVsbFBsb3QvZml0X21vZGVsLlI6MzM2Ojk6IHVuZXhwZWN0ZWQgc3ltYm9sXG4zMzU6ICAgICB0YWJsZXMkY29udHJhc3RzWywgdXBwZXIuQ0w6PWVzdGltYXRlICsgMTAwKnRjcml0KnNlXVxuMzM2OiAgICAgeHh4IGZpeFxuICAgICAgICAgICAgIF5cbiJ9 -->
+<pre><code>Error in source(&quot;../HarrellPlot/fit_model.R&quot;) : 
+  ../HarrellPlot/fit_model.R:336:9: unexpected symbol
+335:     tables$contrasts[, upper.CL:=estimate + 100*tcrit*se]
+336:     xxx fix
+             ^</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
@@ -244,7 +251,7 @@ dt &lt;- vole</code></pre>
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm4gPC0gXCJmbHlfYnVyc3QudHh0XCJcbmZpbGVfcGF0aCA8LSBwYXN0ZShkYXRhX3BhdGgsIGZuLCBzZXA9XCIvXCIpXG5maWxlbmFtZSA8LSAnZmx5X2J1cnN0LnR4dCdcbmZpbGVfcGF0aCA8LSBwYXN0ZShkYXRhX3BhdGgsIGZpbGVuYW1lLCBzZXA9Jy8nKSAjIGZvciBrbml0XG5mbHkgPC0gZnJlYWQoZmlsZV9wYXRoLCBzdHJpbmdzQXNGYWN0b3JzID0gVFJVRSlcbmZseVssIFRyZWF0bWVudDo9ZmFjdG9yKFRyZWF0bWVudCwgYygnQ04nLCAnQUEnKSldXG54IDwtIFwiVHJlYXRtZW50XCJcbnkgPC0gXCJWYnVyc3RcIlxuZyA8LSBcIlNleFwiXG5kYXRhIDwtIGZseVxuZml0IDwtIGxtKFZidXJzdCB+IFRyZWF0bWVudCpTZXgsIGZseSlcbmVtbSA8LSBlbW1lYW5zKGZpdCwgc3BlY3M9Yyh4LGcpKSBcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm4gPC0gXCJmbHlfYnVyc3QudHh0XCJcbmZpbGVfcGF0aCA8LSBwYXN0ZShkYXRhX3BhdGgsIGZuLCBzZXA9XCIvXCIpXG5maWxlbmFtZSA8LSAnZmx5X2J1cnN0LnR4dCdcbmZpbGVfcGF0aCA8LSBwYXN0ZShkYXRhX3BhdGgsIGZpbGVuYW1lLCBzZXA9Jy8nKSAjIGZvciBrbml0XG5mbHkgPC0gZnJlYWQoZmlsZV9wYXRoLCBzdHJpbmdzQXNGYWN0b3JzID0gVFJVRSlcbmZseVssIFRyZWF0bWVudDo9ZmFjdG9yKFRyZWF0bWVudCwgYygnQ04nLCAnQUEnKSldXG54IDwtIFwiVHJlYXRtZW50XCJcbnkgPC0gXCJWYnVyc3RcIlxuZyA8LSBcIlNleFwiXG5kYXRhIDwtIGZseVxuZHQgPC0gZmx5XG5maXQgPC0gbG0oVmJ1cnN0IH4gVHJlYXRtZW50KlNleCwgZmx5KVxuZW1tIDwtIGVtbWVhbnMoZml0LCBzcGVjcz1jKHgsZykpIFxuIyBjb250cmFzdHMgYWNyb3NzIGxldmVscyBCIHdpdGhpbiBsZXZlbCBBXG5jb250cmFzdChlbW0sIG1ldGhvZD1cInJldnBhaXJ3aXNlXCIpXG5gYGAifQ== -->
 <pre class="r"><code>fn &lt;- &quot;fly_burst.txt&quot;
 file_path &lt;- paste(data_path, fn, sep=&quot;/&quot;)
 filename &lt;- 'fly_burst.txt'
@@ -255,12 +262,86 @@ x &lt;- &quot;Treatment&quot;
 y &lt;- &quot;Vburst&quot;
 g &lt;- &quot;Sex&quot;
 data &lt;- fly
+dt &lt;- fly
 fit &lt;- lm(Vburst ~ Treatment*Sex, fly)
-emm &lt;- emmeans(fit, specs=c(x,g)) </code></pre>
+emm &lt;- emmeans(fit, specs=c(x,g)) 
+# contrasts across levels B within level A
+contrast(emm, method=&quot;revpairwise&quot;)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gZW1tZWFucyhmaXQsIHNwZWNzID0gYyh4LCBnKSkgOiBcbiAgY291bGQgbm90IGZpbmQgZnVuY3Rpb24gXCJlbW1lYW5zXCJcbiJ9 -->
-<pre><code>Error in emmeans(fit, specs = c(x, g)) : 
-  could not find function &quot;emmeans&quot;</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiIGNvbnRyYXN0ICAgICAgZXN0aW1hdGUgICAgICAgU0UgIGRmIHQucmF0aW8gcC52YWx1ZVxuIEFBLEYgLSBDTixGICA0OS4zNjM0MTEgNS40MDMxMjEgMTAzICAgOS4xMzYgIDwuMDAwMVxuIENOLE0gLSBDTixGIC0xNC4xMTcyMTYgNS41Mjg2NTkgMTAzICAtMi41NTMgIDAuMDU3OFxuIENOLE0gLSBBQSxGIC02My40ODA2MjggNS4xMDYzNDIgMTAzIC0xMi40MzIgIDwuMDAwMVxuIEFBLE0gLSBDTixGICA0NC45MDQ2ODYgNS40ODQxNTQgMTAzICAgOC4xODggIDwuMDAwMVxuIEFBLE0gLSBBQSxGICAtNC40NTg3MjUgNS4wNTgxMjIgMTAzICAtMC44ODEgIDAuODE0NFxuIEFBLE0gLSBDTixNICA1OS4wMjE5MDIgNS4xOTIwMDkgMTAzICAxMS4zNjggIDwuMDAwMVxuXG5QIHZhbHVlIGFkanVzdG1lbnQ6IHR1a2V5IG1ldGhvZCBmb3IgY29tcGFyaW5nIGEgZmFtaWx5IG9mIDQgZXN0aW1hdGVzIFxuIn0= -->
+<pre><code> contrast      estimate       SE  df t.ratio p.value
+ AA,F - CN,F  49.363411 5.403121 103   9.136  &lt;.0001
+ CN,M - CN,F -14.117216 5.528659 103  -2.553  0.0578
+ CN,M - AA,F -63.480628 5.106342 103 -12.432  &lt;.0001
+ AA,M - CN,F  44.904686 5.484154 103   8.188  &lt;.0001
+ AA,M - AA,F  -4.458725 5.058122 103  -0.881  0.8144
+ AA,M - CN,M  59.021902 5.192009 103  11.368  &lt;.0001
+
+P value adjustment: tukey method for comparing a family of 4 estimates </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29udHJhc3QoZW1tLCBtZXRob2Q9XCJyZXZwYWlyd2lzZVwiLCBzaW1wbGUgPSBcImVhY2hcIiwgY29tYmluZT1UUlVFKVxuYGBgIn0= -->
+<pre class="r"><code>contrast(emm, method=&quot;revpairwise&quot;, simple = &quot;each&quot;, combine=TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiIFNleCBUcmVhdG1lbnQgY29udHJhc3QgICBlc3RpbWF0ZSAgICAgICBTRSAgZGYgdC5yYXRpbyBwLnZhbHVlXG4gRiAgIC4gICAgICAgICBBQSAtIENOICAgNDkuMzYzNDExIDUuNDAzMTIxIDEwMyAgIDkuMTM2ICA8LjAwMDFcbiBNICAgLiAgICAgICAgIEFBIC0gQ04gICA1OS4wMjE5MDIgNS4xOTIwMDkgMTAzICAxMS4zNjggIDwuMDAwMVxuIC4gICBDTiAgICAgICAgTSAtIEYgICAgLTE0LjExNzIxNiA1LjUyODY1OSAxMDMgIC0yLjU1MyAgMC4wNDg1XG4gLiAgIEFBICAgICAgICBNIC0gRiAgICAgLTQuNDU4NzI1IDUuMDU4MTIyIDEwMyAgLTAuODgxICAxLjAwMDBcblxuUCB2YWx1ZSBhZGp1c3RtZW50OiBib25mZXJyb25pIG1ldGhvZCBmb3IgNCB0ZXN0cyBcbiJ9 -->
+<pre><code> Sex Treatment contrast   estimate       SE  df t.ratio p.value
+ F   .         AA - CN   49.363411 5.403121 103   9.136  &lt;.0001
+ M   .         AA - CN   59.021902 5.192009 103  11.368  &lt;.0001
+ .   CN        M - F    -14.117216 5.528659 103  -2.553  0.0485
+ .   AA        M - F     -4.458725 5.058122 103  -0.881  1.0000
+
+P value adjustment: bonferroni method for 4 tests </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29udHJhc3QoZW1tLCBtZXRob2Q9XCJyZXZwYWlyd2lzZVwiLCBzaW1wbGUgPSBjKFwiVHJlYXRtZW50XCIsIFwiU2V4XCIpKVxuYGBgIn0= -->
+<pre class="r"><code>contrast(emm, method=&quot;revpairwise&quot;, simple = c(&quot;Treatment&quot;, &quot;Sex&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiIGNvbnRyYXN0ICAgICAgZXN0aW1hdGUgICAgICAgU0UgIGRmIHQucmF0aW8gcC52YWx1ZVxuIEFBLEYgLSBDTixGICA0OS4zNjM0MTEgNS40MDMxMjEgMTAzICAgOS4xMzYgIDwuMDAwMVxuIENOLE0gLSBDTixGIC0xNC4xMTcyMTYgNS41Mjg2NTkgMTAzICAtMi41NTMgIDAuMDU3OFxuIENOLE0gLSBBQSxGIC02My40ODA2MjggNS4xMDYzNDIgMTAzIC0xMi40MzIgIDwuMDAwMVxuIEFBLE0gLSBDTixGICA0NC45MDQ2ODYgNS40ODQxNTQgMTAzICAgOC4xODggIDwuMDAwMVxuIEFBLE0gLSBBQSxGICAtNC40NTg3MjUgNS4wNTgxMjIgMTAzICAtMC44ODEgIDAuODE0NFxuIEFBLE0gLSBDTixNICA1OS4wMjE5MDIgNS4xOTIwMDkgMTAzICAxMS4zNjggIDwuMDAwMVxuXG5QIHZhbHVlIGFkanVzdG1lbnQ6IHR1a2V5IG1ldGhvZCBmb3IgY29tcGFyaW5nIGEgZmFtaWx5IG9mIDQgZXN0aW1hdGVzIFxuIn0= -->
+<pre><code> contrast      estimate       SE  df t.ratio p.value
+ AA,F - CN,F  49.363411 5.403121 103   9.136  &lt;.0001
+ CN,M - CN,F -14.117216 5.528659 103  -2.553  0.0578
+ CN,M - AA,F -63.480628 5.106342 103 -12.432  &lt;.0001
+ AA,M - CN,F  44.904686 5.484154 103   8.188  &lt;.0001
+ AA,M - AA,F  -4.458725 5.058122 103  -0.881  0.8144
+ AA,M - CN,M  59.021902 5.192009 103  11.368  &lt;.0001
+
+P value adjustment: tukey method for comparing a family of 4 estimates </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29udHJhc3QoZW1tLCBtZXRob2Q9XCJyZXZwYWlyd2lzZVwiLCBzaW1wbGUgPSBsaXN0KFwiVHJlYXRtZW50XCIsIFwiU2V4XCIpKVxuYGBgIn0= -->
+<pre class="r"><code>contrast(emm, method=&quot;revpairwise&quot;, simple = list(&quot;Treatment&quot;, &quot;Sex&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiJGBzaW1wbGUgY29udHJhc3RzIGZvciBUcmVhdG1lbnRgXG5TZXggPSBGOlxuIGNvbnRyYXN0IGVzdGltYXRlICAgICAgIFNFICBkZiB0LnJhdGlvIHAudmFsdWVcbiBBQSAtIENOICA0OS4zNjM0MSA1LjQwMzEyMSAxMDMgICA5LjEzNiAgPC4wMDAxXG5cblNleCA9IE06XG4gY29udHJhc3QgZXN0aW1hdGUgICAgICAgU0UgIGRmIHQucmF0aW8gcC52YWx1ZVxuIEFBIC0gQ04gIDU5LjAyMTkwIDUuMTkyMDA5IDEwMyAgMTEuMzY4ICA8LjAwMDFcblxuXG4kYHNpbXBsZSBjb250cmFzdHMgZm9yIFNleGBcblRyZWF0bWVudCA9IENOOlxuIGNvbnRyYXN0ICAgZXN0aW1hdGUgICAgICAgU0UgIGRmIHQucmF0aW8gcC52YWx1ZVxuIE0gLSBGICAgIC0xNC4xMTcyMTYgNS41Mjg2NTkgMTAzICAtMi41NTMgIDAuMDEyMVxuXG5UcmVhdG1lbnQgPSBBQTpcbiBjb250cmFzdCAgIGVzdGltYXRlICAgICAgIFNFICBkZiB0LnJhdGlvIHAudmFsdWVcbiBNIC0gRiAgICAgLTQuNDU4NzI1IDUuMDU4MTIyIDEwMyAgLTAuODgxICAwLjM4MDFcbiJ9 -->
+<pre><code>$`simple contrasts for Treatment`
+Sex = F:
+ contrast estimate       SE  df t.ratio p.value
+ AA - CN  49.36341 5.403121 103   9.136  &lt;.0001
+
+Sex = M:
+ contrast estimate       SE  df t.ratio p.value
+ AA - CN  59.02190 5.192009 103  11.368  &lt;.0001
+
+
+$`simple contrasts for Sex`
+Treatment = CN:
+ contrast   estimate       SE  df t.ratio p.value
+ M - F    -14.117216 5.528659 103  -2.553  0.0121
+
+Treatment = AA:
+ contrast   estimate       SE  df t.ratio p.value
+ M - F     -4.458725 5.058122 103  -0.881  0.3801</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZW1tIDwtIGVtbWVhbnMoZml0LCBzcGVjcz1jKHgsIE5VTEwpKSBcbmBgYCJ9 -->
+<pre class="r"><code>emm &lt;- emmeans(fit, specs=c(x, NULL)) </code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTk9URTogUmVzdWx0cyBtYXkgYmUgbWlzbGVhZGluZyBkdWUgdG8gaW52b2x2ZW1lbnQgaW4gaW50ZXJhY3Rpb25zXG4ifQ== -->
+<pre><code>NOTE: Results may be misleading due to involvement in interactions</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29udHJhc3QoZW1tLCBtZXRob2Q9XCJyZXZwYWlyd2lzZVwiLCBzaW1wbGUgPSBcImVhY2hcIiwgY29tYmluZT1UUlVFKVxuYGBgIn0= -->
+<pre class="r"><code>contrast(emm, method=&quot;revpairwise&quot;, simple = &quot;each&quot;, combine=TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiIGNvbnRyYXN0IGVzdGltYXRlICAgICAgIFNFICBkZiB0LnJhdGlvIHAudmFsdWVcbiBBQSAtIENOICA1NC4xOTI2NiAzLjc0NjY4OCAxMDMgIDE0LjQ2NCAgPC4wMDAxXG5cblJlc3VsdHMgYXJlIGF2ZXJhZ2VkIG92ZXIgc29tZSBvciBhbGwgb2YgdGhlIGxldmVscyBvZjogU2V4IFxuIn0= -->
+<pre><code> contrast estimate       SE  df t.ratio p.value
+ AA - CN  54.19266 3.746688 103  14.464  &lt;.0001
+
+Results are averaged over some or all of the levels of: Sex </code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->

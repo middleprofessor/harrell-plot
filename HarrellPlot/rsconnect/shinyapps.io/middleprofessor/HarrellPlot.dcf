@@ -5,8 +5,8 @@ account: middleprofessor
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 301708
-bundleId: 1681007
+bundleId: 1693380
 url: https://middleprofessor.shinyapps.io/HarrellPlot/
-when: 1541338749.10814
+when: 1541867531.78134
 asMultiple: FALSE
 asStatic: FALSE
