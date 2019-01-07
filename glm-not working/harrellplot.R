@@ -125,14 +125,7 @@ harrellplot <- function(
     gg_contrasts <- gg_contrasts + ylab(contrast_axis_name)
 
     # re-label X
-    if(fit.model=="glm"){
-      contrast_txt <- "Ratio"
-    }else{
-      contrast_txt <- "Contrast"
-    }
-    if(contrasts.method=="coefficients"){
-      contrast_txt <- "Coefficient"
-      }
+    contrast_txt <- ifelse(contrasts.method=='coefficients', 'Coefficient', 'Contrast')
     gg_contrasts <- gg_contrasts + xlab(contrast_txt)
 
     # set theme and gridlines first as background

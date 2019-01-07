@@ -34,7 +34,6 @@ source("make_formula_str.R", local = TRUE)
 fish <- fread("https://www.middleprofessor.com/files/applied-biostatistics_bookdown/data/zebra_sprint.txt")
 fly <- fread("https://www.middleprofessor.com/files/applied-biostatistics_bookdown/data/fly_burst.txt")
 
-
 # Define UI for application that draws a histogram
 ui <- fluidPage(
   
@@ -50,7 +49,8 @@ ui <- fluidPage(
     ),
     conditionalPanel(condition = "input.tabs=='Model'",
                      # model options
-                     selectInput("model", h3("Model"), choices=c('lm','lmm', "glm"), selected = 1),
+                     selectInput("model", h3("Model"), 
+                                 choices=c('lm','lmm', "glm"), selected = 1),
                      # reactive Input for treatment
                      uiOutput("reml"),
                      # reactive Input for grouping
@@ -73,20 +73,16 @@ ui <- fluidPage(
                      uiOutput("glm_distribution"),
                      
                      # contrast options
-                     selectInput("contrasts.method", h3("Effects"), 
+                     selectInput("contrasts.method", h3("Contrasts"), 
                                  choices = list("Coefficients" = 1,
                                                 "vs. Control" = 2,
                                                 "Pairwise" = 3), selected = 3),
-                     
-                     # reactive input for factor display
                      uiOutput("interaction.treatment"),
                      uiOutput("interaction.group"),
-                     
-                     uiOutput("contrasts.scaling"),
-                     # selectInput("contrasts.scaling", h5("Contrast scaling"), 
-                     #             choices = list("Raw" = 1,
-                     #                            "as percent" = 2,
-                     #                            "Standardized" = 3),selected = 1),
+                     selectInput("contrasts.scaling", h5("Contrast scaling"), 
+                                 choices = list("Raw" = 1,
+                                                "as percent" = 2,
+                                                "Standardized" = 3),selected = 1),
                      selectInput("conf.contrast", h5("Confidence level"), 
                                  choices = list("99%" = 1, 
                                                 "95%" = 2, 
@@ -96,7 +92,7 @@ ui <- fluidPage(
                      # Treatment options
                      selectInput("display.treatment", h3("Treatments"), 
                                  choices = list("Box plot" = 1, 
-                                                "CI plot" = 2), selected = 1),
+                                                "CI plot" = 2), selected = 2),
                      
                      # Input: Confidence level
                      selectInput("conf.mean", h5("Confidence level"), 
@@ -164,7 +160,7 @@ ui <- fluidPage(
                 ),
                 tabPanel("Data",
                          DT::dataTableOutput("data_table")
-                ),
+                         ),
                 tabPanel("Model",
                          # Output: model
                          textOutput("model_text"),
@@ -183,8 +179,6 @@ ui <- fluidPage(
                          verbatimTextOutput("modelFormula"),
                          textOutput("contrastsCaption"),
                          verbatimTextOutput("modelContrasts"),
-                         textOutput("contrastsScaledCaption"),
-                         verbatimTextOutput("modelContrastsScaled"),
                          textOutput("sumCaption"),
                          verbatimTextOutput("modelSummary"),
                          textOutput("coefCaption"),
@@ -203,7 +197,7 @@ ui <- fluidPage(
                          downloadButton(outputId = "download_gg_contrasts", label = "Download Contrasts Subplot (ggplot2 object)"),
                          downloadButton(outputId = "download_gg_treatments", label = "Download Treatments Subplot (ggplot2 object)")
                 ),
-                id = 'tabs'
+                id = 'tabs', selected = "Data"
     )
     
   )
@@ -216,8 +210,8 @@ server <- function(input, output) {
   dataInput <- reactive({
     infile <- input$FileInput # opens file browser
     if(is.null(infile)){
-      df <- fly
-      return(df)
+       df <- fly
+      # return(df)
     }else{
       df <- fread(infile$datapath, stringsAsFactors = TRUE)
       return(df)
@@ -248,7 +242,7 @@ server <- function(input, output) {
     if (is.null(df)) return(NULL)
     items=c(' ', names(df))
     #    names(items)=items
-    #    selectInput("group", "Treatment 2", items, selected=1)
+#    selectInput("group", "Treatment 2", items, selected=1)
     selectInput("group", "Treatment 2", items)
   })
   
@@ -271,22 +265,6 @@ server <- function(input, output) {
     if (is.null(df)) return(NULL)
     if (input$group==' ') return(NULL)
     checkboxInput("interaction.group", "within Treatment 2", TRUE)
-  })
-  
-  output$contrasts.scaling <- renderUI({
-    df <-dataInput()
-    if (is.null(df)) return(NULL)
-    if(input$contrasts.method==1) return(NULL) # Coefficients
-    if(input$model=="glm"){
-      items <- list("Raw" = 1,
-           "Percent" = 2)
-    }else{
-      items <- list("Raw" = 1,
-                    "Percent" = 2,
-                    "Standardized" = 3)
-    }
-    selectInput("contrasts.scaling", h5("Contrast scaling"), 
-                choices=items, selected = 1)
   })
   
   # populate random intercept input
@@ -356,14 +334,14 @@ server <- function(input, output) {
   
   # render data_table
   output$data_table = DT::renderDataTable(dataInput())
-  
+
   round_df <- function(df, digits){
     df_names <- colnames(df)
     df <- data.frame(lapply(df, function(y) if(is.numeric(y)) round(y, digits) else y)) 
     colnames(df) <- df_names
     return(df)
   }
-  
+
   # 
   # contrast.groups <- function(contrast_matrix, grouping, add_interaction){
   #   split1 <- data.frame(t(do.call("cbind", strsplit(as.character(contrast_matrix$contrast)," - "))))
@@ -379,7 +357,7 @@ server <- function(input, output) {
   #   return(group_names)
   # }
   # 
-  
+
   plotInput <- reactive({
     df <- dataInput()
     # exit if there are not correct model inputs
@@ -395,14 +373,8 @@ server <- function(input, output) {
     if(fit.model=='lmm'){
       REML <- input$reml
     }
-    if(fit.model=='glm'){
-      #glm_family <- "nb"
-      glm_family <- input$glm_distribution
-      if(glm_family=="negative binomial"){glm_family <- "nb"}
-    }else{
-      glm_family <- "gaussian"
-    }
-
+    #    error <- input$error
+    error <- 'Normal'
     x <- input$treatment
     y <- input$response
     g <- input$group
@@ -412,9 +384,14 @@ server <- function(input, output) {
     rintcols <- input$random_intercept
     rslopecols <- input$random_slope
     # make sure that random effects are Null if model is lm
-    if(fit.model=='lm'){
+    if(fit.model=='lm'|fit.model=='glm'){
       rintcols <- NULL
       rslopcols <- NULL
+    }
+    glm_family <- input$glm_distribution
+    if(glm_family=="negative binomial"){glm_family <- "nb"}
+    if(fit.model=='lm'|fit.model=='lmm'){
+      glm_family <- "gaussian"
     }
     
     #set inputs to non-shiny variables
@@ -450,7 +427,7 @@ server <- function(input, output) {
     #    mean_intervals.method <- input$mean_intervals.method
     
     # plot
-#    color_array <- c("black","ggplot", "Greys", "Blues", "Accent", "Dark2", "Set1", "Set2", "Set3")
+    color_array <- c("black","ggplot", "Greys", "Blues", "Accent", "Dark2", "Set1", "Set2", "Set3")
     color_array <- c("ggplot", "greys", "npg", "aaas", "nejm", "lancet", "jama", "jco")
     color_palette <- color_array[as.numeric(as.character(input$colors))]
     theme_array <- c("gray", "bw", "classic", "minimal", "cowplot")
@@ -470,7 +447,9 @@ server <- function(input, output) {
     # rel_height_input <- input$relheight
     # rel_height <- rel_height_array[which(rel_height_ch_array==rel_height_input)]
     
-    res <- harrellplot(x, y, g, covcols, rintcols, rslopecols, df, fit.model, glm_family, REML, add_interaction, interaction.group, interaction.treatment, mean_intervals.method, conf.mean, contrasts.method, contrasts.scaling, conf.contrast, adjust, show.contrasts, show.treatments, display.treatment, short, show.mean, show.dots, zero, horizontal, color_palette, jtheme, rel_height)
+    res <- harrellplot(x, y, g, covcols, rintcols, rslopecols, df, fit.model, REML, error="normal", add_interaction, interaction.group, interaction.treatment, mean_intervals.method, conf.mean, contrasts.method, contrasts.scaling, conf.contrast, adjust, show.contrasts, show.treatments, display.treatment, short, show.mean, show.dots, zero, horizontal, color_palette, jtheme, rel_height)
+    
+    #res <- harrellplot(x, y, g, covcols, rintcols, rslopecols, df, fit.model, glm_family, REML, add_interaction, interaction.group, interaction.treatment, mean_intervals.method, conf.mean, contrasts.method, contrasts.scaling, conf.contrast, adjust, show.contrasts, show.treatments, display.treatment, short, show.mean, show.dots, zero, horizontal, color_palette, jtheme, rel_height)
     
     res
   })
@@ -552,7 +531,9 @@ server <- function(input, output) {
   output$contrastsCaption <- renderText({
     df <- dataInput()
     if (is.null(df)) return(NULL)
-    contrast_axis_name <- 'Model Effects'
+    contrast_axis_name <- 'Model Contrasts'
+    if(input$contrasts.scaling==2){contrast_axis_name <- 'Model Contrasts (percent)'}
+    if(input$contrasts.scaling==3){contrast_axis_name <- 'Model Contrasts (standardized)'}
     contrast_axis_name
   })
   
@@ -567,23 +548,6 @@ server <- function(input, output) {
     }else{ # pretty
       print(round_df(tables$contrasts, 3), row.names=FALSE)
     }
-  })
-  
-  output$contrastsScaledCaption <- renderText({
-    df <- dataInput()
-    if (is.null(df)) return(NULL)
-    if(input$contrasts.scaling==1) return(NULL)
-    if(input$contrasts.scaling==2){contrast_axis_name <- 'Model Effects (percent)'}
-    if(input$contrasts.scaling==3){contrast_axis_name <- 'Model Effects (standardized)'}
-    contrast_axis_name
-  })
-  
-  output$modelContrastsScaled <- renderPrint({
-    df <- dataInput()
-    if (is.null(df)) return(NULL)
-    if(input$contrasts.scaling==1) return(NULL)
-    tables <- plotInput()$tables
-    print(round_df(tables$contrasts.scaled, 1), row.names=FALSE)
   })
   
   output$coefCaption <- renderText({
@@ -694,7 +658,7 @@ server <- function(input, output) {
     if (is.null(df)) return(NULL)
     if(input$treatment != ' ' & 
        is.numeric(df[[input$response]])){
-      
+
       print(plotInput()$gg)
     }
   })  
@@ -750,3 +714,4 @@ server <- function(input, output) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+

@@ -7,7 +7,7 @@ output: html_notebook
 library(ggplot2)
 library(data.table)
 library(emmeans)
-
+library(harrellplot)
 data_path <- "../data"
 source("../HarrellPlot/harrellplot.R")
 source("../HarrellPlot/fit_model.R")
@@ -19,14 +19,13 @@ source("../HarrellPlot/make_formula_str.R")
   rintcols=NULL
   rslopecols=NULL
 fit.model='lm'
-error='Normal'
 add_interaction=TRUE
 interaction.group = TRUE
 interaction.treatment=TRUE
 mean_intervals.method='lm'
 conf.mean=0.95
 contrasts.method='revpairwise'
-contrasts.scaling='percent'
+contrasts.scaling= "raw" # 'percent'
 conf.contrast=0.95
 adjust=FALSE
 show.contrasts=TRUE
@@ -36,9 +35,37 @@ short=FALSE
 show.mean=TRUE
 show.dots=TRUE
 horizontal=TRUE
-color_palette='Greys'
+color_palette='jco'
 jtheme='minimal'
+zero= TRUE
+rel_height=0 # Aspect ratio of forest plot vs. box/dot plot components (0 is default)
+y_label="why"
+```
 
+```{r counts}
+filename <- 'Experiment 5 - Insecticide bioassay data.csv'
+file_path <- paste(data_path, filename, sep='/') # for knit
+count <- fread(file_path, stringsAsFactors = TRUE)
+count[, Entrust:=factor(rep(c("E+","E-"), each=10), c("E-","E+"))]
+count[, Hu:=factor(rep(rep(c("Hu+","Hu-"), each=5), 2), c("Hu-","Hu+"))]
+x <- "Treatment"
+y <- "eggs_total"
+g <- NULL
+data <- count
+fit.model <- "glm"
+glm_family <- "nb"
+res <- harrellplot(x="Treatment", y="eggs_total", data=count, fit.model="glm", glm_family="nb")
+
+
+x="Entrust"
+y="eggs_total"
+g="Hu"
+data=count
+res <- harrellplot(x="Entrust", y="eggs_total", g="Hu", data=count, fit.model="glm", glm_family="nb")
+
+fit.model="glm"
+glm_family="nb"
+harrellplot(x="Treatment", y="Eggs", data=count, fit.model="glm", glm_family="nb")
 ```
 
 ```{r vole}

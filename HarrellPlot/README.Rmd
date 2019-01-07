@@ -7,7 +7,9 @@ output: html_document
 # What this app does
 ![](harrellplot.png)
 
-[A working paper on Harrell plots as alternatives to bar, dot, and box plots is at bioRxiv](https://www.biorxiv.org/content/early/2018/11/02/458182) (control- or right click to open in new tab)
+[A working paper on Harrell plots as alternatives to bar, dot, and box plots is at bioRxiv](https://www.biorxiv.org/content/early/2018/11/10/458182) (control- or right click to open in new tab)
+
+[A github R package is available](https://github.com/middleprofessor/harrellplot) (control- or right click to open in new tab)
 
 The HarrellPlot app creates alternatives to the ubiquitious bar plot. The alternative is a Harrell plot, which combines, a forest plot of modeled coefficients or treatment contrasts with confidence intervals, a dot plot of raw data, and a box plot. Or, the output can be limited to the forest plot of treatment effects, or the the box/dot plots, or just the box plot. The output is pretty flexible. What it doesn't output is a bar plot.
 
@@ -30,7 +32,7 @@ HarrellPlot imports both tab-delimited (.txt) and comma-separated (.csv) files. 
 Factor levels are automatically ordered in the order that they first appear in a column. To re-order factor levels, it is easiest to sort prior to importing into HarrellPlot.
 
 ### Sample data
-Upon opening, HarrellPlot loads a dataset from a long term selection experiment on *Drosophila melanogaster* (Weber, K.E., 1996. Large genetic change at small fitness cost in large populations of *Drosophila melanogaster* selected for wind tunnel flight: rethinking fitness surfaces. Genetics, 144(1), pp.205-213.) The response variable is the maximum wind tunnel speed against which a fly can successfully burst into without being blown backward.
+Upon opening, HarrellPlot loads a dataset from a long term selection experiment on *Drosophila melanogaster* (Weber, K.E., 1996. Large genetic change at small fitness cost in large populations of *Drosophila melanogaster* selected for wind tunnel flight: rethinking fitness surfaces. Genetics, 144(1), pp.205-213.) The response variable is the maximum wind tunnel speed against which a fly can successfully burst into without being blown backward. Choose "Vburst" as the response variable and "Treatment" and/or "Sex" as the factor variables. Treatment has two levels: CN=control lines and AA=selected lines.
 
 ## Model tab -- Choosing the variables to plot by modeling the data
 ### Model
